@@ -1,0 +1,7 @@
+.env
+*.joblib
+cosss
+envs
+nhenv
+__pycache__
+Analysis/*.joblib
