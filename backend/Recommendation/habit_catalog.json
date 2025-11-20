@@ -1,0 +1,4570 @@
+[ 
+  {
+    "habit_id": 1,
+    "name": "Box Breathing (1 Min)",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "angry",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.75
+  },
+  {
+    "habit_id": 2,
+    "name": "1-Min Mindful Check-in",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 3,
+    "name": "Reframe One Negative Thought",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "angry",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 4,
+    "name": "20-Min Pomodoro Sprint",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 25,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "focus_mode",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 5,
+    "name": "Write 3-Item To-Do List",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "overwhelmed",
+      "focus_mode",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 6,
+    "name": "Morning Stretch",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.85
+  },
+  {
+    "habit_id": 7,
+    "name": "Drink Glass of Water",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.95
+  },
+  {
+    "habit_id": 8,
+    "name": "10-Min Walk Outside",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "low_mood",
+      "focus_mode",
+      "tired"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 9,
+    "name": "30-Second Cold Shower Burst",
+    "category": "physical",
+    "difficulty": 4,
+    "time_min": 1,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "morning_energy",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 10,
+    "name": "Stair Climb (3 Floors)",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 5,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 11,
+    "name": "5-Min Gratitude Journal",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 12,
+    "name": "10-Min Evening Meditation",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "overwhelmed",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 13,
+    "name": "Read 10 Pages of Fiction",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "stress",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.65
+  },
+  {
+    "habit_id": 14,
+    "name": "Watch Sunset/Sunrise",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious",
+      "overwhelmed"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 15,
+    "name": "Listen to Calming Music",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 10,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "angry",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.9
+  },
+  {
+    "habit_id": 16,
+    "name": "1-Hour Phone Detox",
+    "category": "mental",
+    "difficulty": 4,
+    "time_min": 60,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "focus_mode",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 17,
+    "name": "Tidy Desk (5 Min)",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "overwhelmed",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 18,
+    "name": "Plan Your Day",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "overwhelmed",
+      "focus_mode",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 19,
+    "name": "Learn One New Fact",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 20,
+    "name": "Progressive Muscle Relaxation",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 21,
+    "name": "Eat a Healthy Snack",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 22,
+    "name": "20 Squats",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 3,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "tired",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 23,
+    "name": "30-Min Jog",
+    "category": "physical",
+    "difficulty": 4,
+    "time_min": 30,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "stress"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 24,
+    "name": "Foam Roll Muscles",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.25
+  },
+  {
+    "habit_id": 25,
+    "name": "Post-Work Decompression Walk",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 15,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "overwhelmed",
+      "tired"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 26,
+    "name": "Text a Friend",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.9
+  },
+  {
+    "habit_id": 27,
+    "name": "Set 'No Phone in Bed' Rule",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 28,
+    "name": "Write One Sentence Journal Entry",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "overwhelmed",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 29,
+    "name": "Listen to a Podcast",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 30,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 30,
+    "name": "Review Personal Values",
+    "category": "spiritual",
+    "difficulty": 4,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "overwhelmed",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.1
+  },
+  {
+    "habit_id": 31,
+    "name": "5-4-3-2-1 Grounding",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 3,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 32,
+    "name": "Label Your Emotions",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "angry",
+      "low_mood",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 33,
+    "name": "Quick Social Media Check (5 Min)",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.9
+  },
+  {
+    "habit_id": 34,
+    "name": "Review Study Flashcards",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 35,
+    "name": "Close Unused Browser Tabs",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "focus_mode",
+      "overwhelmed",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 36,
+    "name": "Practice Good Posture",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 37,
+    "name": "20 Jumping Jacks",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 1,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "tired",
+      "morning_energy",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 38,
+    "name": "30-Min Home Workout",
+    "category": "physical",
+    "difficulty": 4,
+    "time_min": 30,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 39,
+    "name": "Bike Ride (15 Min)",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "low_mood",
+      "stress"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 40,
+    "name": "Evening Wind-Down Yoga",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 41,
+    "name": "Call a Family Member",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 42,
+    "name": "Mindful Tea/Coffee",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "stress",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 43,
+    "name": "No Screens 30 Min Before Bed",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 30,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 44,
+    "name": "Doodle or Draw (10 Min)",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 45,
+    "name": "Connect with Nature (5 Min)",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "overwhelmed",
+      "low_mood"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 46,
+    "name": "Brainstorm Solutions (10 Min)",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "overwhelmed",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 47,
+    "name": "Mindful Observation (1 Min)",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 48,
+    "name": "Put Phone in Another Room",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 30,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 49,
+    "name": "'Worry Time' (10 Min)",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "stress",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 50,
+    "name": "Read News (10 Min)",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 51,
+    "name": "Desk Stretches",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 52,
+    "name": "1-Min Plank",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 53,
+    "name": "Meal Prep (Lunch)",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 20,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "morning_energy",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 54,
+    "name": "Go to Bed 15 Min Early",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 55,
+    "name": "Listen to Favorite Song",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "low_mood",
+      "morning_energy",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.95
+  },
+  {
+    "habit_id": 56,
+    "name": "Light Candle",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "night_routine",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 57,
+    "name": "Review 'Done' List",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 58,
+    "name": "Send Thank You Note",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 3,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 59,
+    "name": "10-Min Silent Reflection",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "overwhelmed",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 60,
+    "name": "Pet Animal (10 Min)",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 10,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "stress",
+      "low_mood",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 61,
+    "name": "Break Task into Small Steps",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "overwhelmed",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 62,
+    "name": "Identify 3 Things You Control",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "overwhelmed",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 63,
+    "name": "Practice 'S.T.O.P.' Skill",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 2,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 64,
+    "name": "Turn Off Phone Notifications",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode",
+      "high_screen_time",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 65,
+    "name": "Read One Academic Paper Section",
+    "category": "mental",
+    "difficulty": 4,
+    "time_min": 30,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 66,
+    "name": "10 Push-ups",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 67,
+    "name": "Make a Healthy Breakfast",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 68,
+    "name": "45-Min Gym Session",
+    "category": "physical",
+    "difficulty": 5,
+    "time_min": 45,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "stress"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 69,
+    "name": "Take a 20-Min Nap",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 20,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 70,
+    "name": "Check Your Posture",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 71,
+    "name": "1-Min Guided Breathing",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 72,
+    "name": "Read Inspirational Quote",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 73,
+    "name": "Plan a Future Fun Activity",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 74,
+    "name": "Write Down 1 Accomplishment",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 75,
+    "name": "Avoid News/Social Media (Evening)",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 60,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "high_screen_time",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 76,
+    "name": "Mindful Walking (5 Min)",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 77,
+    "name": "Brain Dump to Paper",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "overwhelmed",
+      "anxious",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 78,
+    "name": "Challenge an Anxious Thought",
+    "category": "mental",
+    "difficulty": 4,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 79,
+    "name": "Single-Task for 15 Minutes",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 80,
+    "name": "Count Backwards from 100",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "angry",
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 81,
+    "name": "Get 10 Min of Sunlight",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "low_mood",
+      "tired"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 82,
+    "name": "Shoulder Rolls at Desk",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "stress",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 83,
+    "name": "15-Min HIIT Workout",
+    "category": "physical",
+    "difficulty": 4,
+    "time_min": 15,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "morning_energy",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 84,
+    "name": "Eat a High-Protein Meal",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 20,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 85,
+    "name": "Power Pose (2 Min)",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 86,
+    "name": "Dim Lights 1 Hour Before Bed",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 87,
+    "name": "Perform a Random Act of Kindness",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 5,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 88,
+    "name": "15-Min Unstructured 'Do Nothing' Time",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "overwhelmed",
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 89,
+    "name": "Mindful Listening (Music)",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 90,
+    "name": "Set One Intention for the Day",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "morning_energy",
+      "overwhelmed",
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 91,
+    "name": "Acknowledge One 'Win'",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 92,
+    "name": "Put on 'Focus' Playlist",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "focus_mode",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 93,
+    "name": "15-Min Read on a New Topic",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 94,
+    "name": "Squeeze Stress Ball",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 95,
+    "name": "Review Calendar for Tomorrow",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "anxious",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 96,
+    "name": "Eat Fruit",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.9
+  },
+  {
+    "habit_id": 97,
+    "name": "Walk for 1 Phone Call",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 15,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": false,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 98,
+    "name": "60-Min Full Workout",
+    "category": "physical",
+    "difficulty": 5,
+    "time_min": 60,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.1
+  },
+  {
+    "habit_id": 99,
+    "name": "Stand Up and Stretch",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.9
+  },
+  {
+    "habit_id": 100,
+    "name": "Avoid Caffeine After 2 PM",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "anxious",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 101,
+    "name": "1-Min Loving-Kindness Meditation",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 102,
+    "name": "Watch a Funny Video",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "low_mood",
+      "stress",
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.9
+  },
+  {
+    "habit_id": 103,
+    "name": "Read Spiritual/Philosophical Text",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 104,
+    "name": "Observe Nature (Window)",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "overwhelmed",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 105,
+    "name": "Set Phone to Grayscale",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "focus_mode",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 106,
+    "name": "Mindful Breathing (10 Breaths)",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "angry",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.85
+  },
+  {
+    "habit_id": 107,
+    "name": "Use 'Do Not Disturb' Mode",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "focus_mode",
+      "overwhelmed",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 108,
+    "name": "Do a 5-Min Brain Teaser",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "focus_mode",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 109,
+    "name": "Visualize a Calm Place",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 110,
+    "name": "Identify Source of Anger",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 111,
+    "name": "Step Away from Screen (2 Min)",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "high_screen_time",
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.9
+  },
+  {
+    "habit_id": 112,
+    "name": "1-Min Wall Sit",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 113,
+    "name": "Prepare Healthy Study Snacks",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 114,
+    "name": "10-Min Dance Break",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "low_mood",
+      "tired",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 115,
+    "name": "Set Wake-Up Alarm",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "morning_energy",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.9
+  },
+  {
+    "habit_id": 116,
+    "name": "Full 15-Min Journaling",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious",
+      "overwhelmed",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 117,
+    "name": "Say 'No' to One Request",
+    "category": "spiritual",
+    "difficulty": 4,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "overwhelmed",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 118,
+    "name": "Mindful Eating (One Meal)",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 119,
+    "name": "Compliment a Stranger",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 2,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 120,
+    "name": "Engage in a Hobby (30 Min)",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 30,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "stress",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 121,
+    "name": "Identify 1 'Next Action'",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 2,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "overwhelmed",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 122,
+    "name": "Delete Unused Apps",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 123,
+    "name": "Write 'Worry List'",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 124,
+    "name": "2-Min Anger Countdown",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "angry",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 125,
+    "name": "Plan 5-Min Study Break",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "focus_mode",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 126,
+    "name": "10 Calf Raises",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 127,
+    "name": "Walk to Get Water",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.9
+  },
+  {
+    "habit_id": 128,
+    "name": "Light Jog in Place (1 Min)",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 1,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 129,
+    "name": "No Snooze Button",
+    "category": "physical",
+    "difficulty": 4,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 130,
+    "name": "Pack Gym Bag for Tomorrow",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 131,
+    "name": "Notice 5 Smells/Sounds",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 132,
+    "name": "Read for Pleasure (30 Min)",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 30,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "stress",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 133,
+    "name": "Visualize Success",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 134,
+    "name": "Plan Weekend Social Event",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 135,
+    "name": "Charge Phone Outside Bedroom",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 136,
+    "name": "4-7-8 Breathing",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 3,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 137,
+    "name": "Do Hardest Task First",
+    "category": "mental",
+    "difficulty": 4,
+    "time_min": 30,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode",
+      "morning_energy",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 138,
+    "name": "Hold Ice Cube",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 1,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 139,
+    "name": "Check Email (Once)",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "focus_mode",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 140,
+    "name": "Splash Face with Cold Water",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "tired",
+      "stress",
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 141,
+    "name": "Make Your Bed",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 142,
+    "name": "10-Min Intense Cardio",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "tired",
+      "morning_energy",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 143,
+    "name": "Walk During Lunch Break",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 15,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "stress",
+      "focus_mode"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 144,
+    "name": "Body Scan Meditation (10 Min)",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 145,
+    "name": "Lay Out Clothes for Tomorrow",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "morning_energy",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 146,
+    "name": "Mindful Observation (1 Object)",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 2,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 147,
+    "name": "Listen to Uplifting Music",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 10,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "low_mood",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.9
+  },
+  {
+    "habit_id": 148,
+    "name": "5-Min Guided Meditation",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "overwhelmed",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 149,
+    "name": "Engage in Prayer/Contemplation",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 150,
+    "name": "Do One Creative Thing (5 Min)",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 151,
+    "name": "Read One Chapter of a Book",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 20,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode",
+      "night_routine",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 152,
+    "name": "Tackle One Small Task",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "overwhelmed",
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 153,
+    "name": "Learn a Word in New Language",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 154,
+    "name": "10-Min Problem Solving",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 155,
+    "name": "Write Down What's Bothering You",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "angry",
+      "stress",
+      "low_mood",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 156,
+    "name": "2-Min Neck/Shoulder Stretch",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "stress",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 157,
+    "name": "2-Min Brisk Walk",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 158,
+    "name": "30-Min Yoga Flow",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 30,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "morning_energy",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 159,
+    "name": "Take Stairs Instead of Elevator",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 3,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 160,
+    "name": "Prepare Coffee/Tea for Morning",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 161,
+    "name": "3-Min Guided Meditation",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 162,
+    "name": "Reflect on 1 Positive Interaction",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 163,
+    "name": "30-Min 'Me Time'",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 30,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "overwhelmed",
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 164,
+    "name": "Hug Someone (or Pet)",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "low_mood",
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 165,
+    "name": "Take a Warm Bath",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 20,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "night_routine",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 166,
+    "name": "Set Timer for 1 Task",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "focus_mode",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 167,
+    "name": "Write Down 3 Priorities",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "overwhelmed",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 168,
+    "name": "Do Nothing for 2 Minutes",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 169,
+    "name": "Plan a Study Reward",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "focus_mode",
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 170,
+    "name": "30-Min Digital Detox",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 30,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "night_routine",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 171,
+    "name": "10-Min Walk (Indoors)",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 172,
+    "name": "Make a Healthy Smoothie",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 173,
+    "name": "20-Min Jog",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 20,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "stress"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 174,
+    "name": "5-Min Ab Workout",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 175,
+    "name": "Look Out Window (20-20-20 Rule)",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "focus_mode",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 176,
+    "name": "10-Min Guided Meditation",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "overwhelmed",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 177,
+    "name": "Write 3 Things You're Good At",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 178,
+    "name": "Practice Forgiveness (Internal)",
+    "category": "spiritual",
+    "difficulty": 5,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "angry",
+      "low_mood",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.05
+  },
+  {
+    "habit_id": 179,
+    "name": "Help Someone (5 Min)",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 180,
+    "name": "Read Positive News",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 181,
+    "name": "5-Min Journaling (Stream of Con.)",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "overwhelmed",
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 182,
+    "name": "Organize Laptop Desktop",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "overwhelmed",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 183,
+    "name": "Notice 3 Good Things (Right Now)",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 184,
+    "name": "Fact-Check Anxious Assumption",
+    "category": "mental",
+    "difficulty": 4,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 185,
+    "name": "Pause and Take One Deep Breath",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "angry",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.9
+  },
+  {
+    "habit_id": 186,
+    "name": "5-Min Sunlight Exposure",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "low_mood"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 187,
+    "name": "Wiggle Toes and Fingers",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "tired",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 188,
+    "name": "10-Min Evening Stretch",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "stress",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 189,
+    "name": "Eat Breakfast",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 190,
+    "name": "Short Bodyweight Exercise",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 191,
+    "name": "Listen to Nature Sounds",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 192,
+    "name": "Acknowledge 1 Good Quality",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 2,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 193,
+    "name": "Mindful Dish Washing",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 194,
+    "name": "Read One Poem",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 195,
+    "name": "Light Stretching",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 196,
+    "name": "Name 5 Things You See",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 197,
+    "name": "One-Page 'Brain Dump'",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "overwhelmed",
+      "anxious",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 198,
+    "name": "Identify 'What If' vs 'What Is'",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 199,
+    "name": "Set 'App Limit' Timers",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 200,
+    "name": "Punch a Pillow",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 201,
+    "name": "Open Window for Fresh Air",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "stress",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 202,
+    "name": "3-Min Arm Circles",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 203,
+    "name": "Run in Place (5 Min)",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "tired",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 204,
+    "name": "20-Min Power Walk",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 20,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "stress",
+      "tired"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 205,
+    "name": "Set Consistent Bedtime",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 206,
+    "name": "Sit in Silence (5 Min)",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 207,
+    "name": "Acknowledge One Difficult Feeling",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 2,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious",
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 208,
+    "name": "Watch Clouds or Stars",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "overwhelmed",
+      "night_routine"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 209,
+    "name": "Unfollow Negative Social Media",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "angry",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 210,
+    "name": "Put on Comfortable Clothes",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "tired",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 211,
+    "name": "Practice 'Urge Surfing'",
+    "category": "mental",
+    "difficulty": 4,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.1
+  },
+  {
+    "habit_id": 212,
+    "name": "Review 'Eisenhower Matrix'",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "overwhelmed",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 213,
+    "name": "Read 1 Article (Non-School)",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 214,
+    "name": "Delay Task by 10 Minutes",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 215,
+    "name": "Check in with a Mentor",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "overwhelmed",
+      "focus_mode",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 216,
+    "name": "Eat a Vegetable",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 217,
+    "name": "Take a 15-Min Power Nap",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 15,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 218,
+    "name": "Plan Your Workouts for Week",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 219,
+    "name": "Drink Herbal Tea",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "night_routine",
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 220,
+    "name": "Go for a Run",
+    "category": "physical",
+    "difficulty": 4,
+    "time_min": 30,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "stress"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 221,
+    "name": "Listen to a Guided Imagery",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 222,
+    "name": "Look at Old Positive Photos",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 223,
+    "name": "Write 1-Line 'Daily Highlight'",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 224,
+    "name": "15-Min 'No Plans' Walk",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "overwhelmed",
+      "low_mood"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 225,
+    "name": "Turn On 'Night Shift' Mode",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 226,
+    "name": "Tense and Release Fists",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 227,
+    "name": "5-Min 'Worry' Journal",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 228,
+    "name": "45-Min Focused Study Block",
+    "category": "mental",
+    "difficulty": 4,
+    "time_min": 45,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 229,
+    "name": "Disable Badge App Icons",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "focus_mode",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 230,
+    "name": "Notice 3 Sounds",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 231,
+    "name": "5-Min Dance Party",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "low_mood",
+      "tired",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 232,
+    "name": "1-Min Breath of Fire",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 1,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 233,
+    "name": "Refill Water Bottle",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.9
+  },
+  {
+    "habit_id": 234,
+    "name": "Quick Room Tidy (10 Min)",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "overwhelmed",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 235,
+    "name": "Get Up 15 Min Early",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 236,
+    "name": "Acknowledge 1 Thing You're Proud of",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 2,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 237,
+    "name": "Read 'Evening Review' Prompts",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 238,
+    "name": "Schedule 'Worry Time'",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 239,
+    "name": "Plan 1 'Self-Care' Act",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 3,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "low_mood",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 240,
+    "name": "10-Min 'Digital Sunset'",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 241,
+    "name": "Use 'Why' Technique (5 Whys)",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious",
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 242,
+    "name": "Review Notes (10 Min)",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 243,
+    "name": "Rip Paper",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "angry",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 244,
+    "name": "Set 3 'Micro-Goals'",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "overwhelmed",
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 245,
+    "name": "Clean 1 Thing (Sink, Toilet)",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "overwhelmed",
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 246,
+    "name": "1-Min Mindful Hand Washing",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 247,
+    "name": "Eat Mindfully (One Bite)",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 248,
+    "name": "10-Min Strength Training",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 249,
+    "name": "Prepare Coffee Maker",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 250,
+    "name": "Have a 'Screen-Free' Meal",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 251,
+    "name": "1-Min 'Sense' Check-in",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 252,
+    "name": "15-Min Meditation (Unguided)",
+    "category": "spiritual",
+    "difficulty": 4,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "stress",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.1
+  },
+  {
+    "habit_id": 253,
+    "name": "Write 'Letter to Future Self'",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 254,
+    "name": "Look at Art (5 Min)",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 255,
+    "name": "Do a Good Deed",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 256,
+    "name": "Delay Social Media (15 Min)",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 257,
+    "name": "Acknowledge 1 'Small Win'",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 258,
+    "name": "Categorize To-Do List",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "overwhelmed",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 259,
+    "name": "Read 5 Pages of Textbook",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 260,
+    "name": "Write Angry Letter (Don't Send)",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 261,
+    "name": "Walk Barefoot on Grass",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "anxious"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 262,
+    "name": "20-Min 'Non-Exercise' Walk",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 20,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood",
+      "tired",
+      "stress"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 263,
+    "name": "30-Min Team Sport",
+    "category": "physical",
+    "difficulty": 4,
+    "time_min": 30,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "stress",
+      "low_mood"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 264,
+    "name": "5-Min Light Cardio",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "morning_energy",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 265,
+    "name": "Avoid Checking Phone First 15 Min",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "morning_energy",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 266,
+    "name": "20-Min Guided Meditation",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 20,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress",
+      "anxious",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 267,
+    "name": "Read 'Wind-Down' Book",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 268,
+    "name": "Identify 1 Value You Honored",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 269,
+    "name": "Water Plants",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 270,
+    "name": "Offer Help to a Classmate",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 271,
+    "name": "Review 'Big Picture' Goal",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode",
+      "low_mood",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 272,
+    "name": "Do a 'Digital Declutter'",
+    "category": "mental",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 273,
+    "name": "Learn to 'Name It to Tame It'",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 274,
+    "name": "60-Min 'Deep Work' Block",
+    "category": "mental",
+    "difficulty": 5,
+    "time_min": 60,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 275,
+    "name": "5-Min 'Worry Postponement'",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 276,
+    "name": "Avoid Hitting Snooze",
+    "category": "physical",
+    "difficulty": 4,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "morning_energy"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 277,
+    "name": "2-Min Seated Spinal Twist",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 2,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 278,
+    "name": "45-Min Moderate Exercise",
+    "category": "physical",
+    "difficulty": 4,
+    "time_min": 45,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "morning_energy"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 279,
+    "name": "Eat Lunch Away From Desk",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 15,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "high_screen_time",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 280,
+    "name": "Laugh (Watch Comedy)",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 10,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "low_mood",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.8
+  },
+  {
+    "habit_id": 281,
+    "name": "Make Bedtime 'Tech-Free' Zone",
+    "category": "spiritual",
+    "difficulty": 4,
+    "time_min": 30,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 282,
+    "name": "1-Min 'I Am' Affirmation",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 283,
+    "name": "Listen to an Album (No Skips)",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 45,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "stress",
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 284,
+    "name": "Volunteer for 1 Hour",
+    "category": "spiritual",
+    "difficulty": 4,
+    "time_min": 60,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "low_mood"
+    ],
+    "indoor": false,
+    "required_device": "none",
+    "popularity_prior": 0.05
+  },
+  {
+    "habit_id": 285,
+    "name": "Practice Self-Compassion Break",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 3,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "low_mood",
+      "stress",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 286,
+    "name": "Write 1 'Next Physical Action'",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 287,
+    "name": "Plan 'Pomodoro' Sessions",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode",
+      "overwhelmed"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 288,
+    "name": "1-Min 'Heartbeat' Grounding",
+    "category": "mental",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 289,
+    "name": "Engage in 'Flow State' Task",
+    "category": "mental",
+    "difficulty": 4,
+    "time_min": 45,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "focus_mode",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 290,
+    "name": "Step Away from Argument (5 Min)",
+    "category": "mental",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "angry"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 291,
+    "name": "Take 20-Min 'Tech-Free' Break",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 20,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "high_screen_time",
+      "stress",
+      "tired"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.5
+  },
+  {
+    "habit_id": 292,
+    "name": "Practice 'Mindful' Steps (1 Min)",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 293,
+    "name": "Eat One Meal Slowly",
+    "category": "physical",
+    "difficulty": 3,
+    "time_min": 15,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.2
+  },
+  {
+    "habit_id": 294,
+    "name": "5-Min 'Energy Burst' Workout",
+    "category": "physical",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "tired",
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 295,
+    "name": "Set 'Get Ready for Bed' Alarm",
+    "category": "physical",
+    "difficulty": 1,
+    "time_min": 1,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine"
+    ],
+    "indoor": true,
+    "required_device": "phone",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 296,
+    "name": "30-Min Unstructured 'Play' Time",
+    "category": "spiritual",
+    "difficulty": 3,
+    "time_min": 30,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "stress",
+      "low_mood"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.3
+  },
+  {
+    "habit_id": 297,
+    "name": "Read Fiction Before Bed",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 20,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "night_routine",
+      "high_screen_time"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.6
+  },
+  {
+    "habit_id": 298,
+    "name": "Practice 'Noticing' (5 Min)",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 5,
+    "dopamine_level": "low",
+    "recommended_for_state": [
+      "anxious",
+      "stress"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.4
+  },
+  {
+    "habit_id": 299,
+    "name": "Watch an Educational Video",
+    "category": "spiritual",
+    "difficulty": 2,
+    "time_min": 10,
+    "dopamine_level": "medium",
+    "recommended_for_state": [
+      "focus_mode"
+    ],
+    "indoor": true,
+    "required_device": "laptop",
+    "popularity_prior": 0.7
+  },
+  {
+    "habit_id": 300,
+    "name": "Cuddle with Pet (5 Min)",
+    "category": "spiritual",
+    "difficulty": 1,
+    "time_min": 5,
+    "dopamine_level": "high",
+    "recommended_for_state": [
+      "low_mood",
+      "stress",
+      "anxious"
+    ],
+    "indoor": true,
+    "required_device": "none",
+    "popularity_prior": 0.7
+  }
+]
