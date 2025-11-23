@@ -26,12 +26,25 @@ class _JournalPageState extends State<JournalPage> {
   bool _isSaving = false;
   String? _statusMessage;
   late final JournalService _journalService;
+  final TextEditingController _screenTimeController = TextEditingController();
+  final TextEditingController _stepsController = TextEditingController();
+  final TextEditingController _sleepHoursController = TextEditingController();
+  final TextEditingController _unlockCountController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
     _journalService = widget.service ?? JournalService();
+  }
+
+  @override
+  void dispose() {
+    _screenTimeController.dispose();
+    _stepsController.dispose();
+    _sleepHoursController.dispose();
+    _unlockCountController.dispose();
+    super.dispose();
   }
 
   Future<void> _startListening() async {
@@ -64,19 +77,39 @@ class _JournalPageState extends State<JournalPage> {
       _statusMessage = null;
     });
     try {
-      // Submit journal with optional mobile data
-      // Note: In a real app, you'd get these from device sensors/APIs
+      // Parse optional numeric values
+      int? screenMinutes;
+      int? steps;
+      double? sleepHours;
+      int? unlockCount;
+
+      if (_screenTimeController.text.trim().isNotEmpty) {
+        screenMinutes = int.tryParse(_screenTimeController.text.trim());
+      }
+      if (_stepsController.text.trim().isNotEmpty) {
+        steps = int.tryParse(_stepsController.text.trim());
+      }
+      if (_sleepHoursController.text.trim().isNotEmpty) {
+        sleepHours = double.tryParse(_sleepHoursController.text.trim());
+      }
+      if (_unlockCountController.text.trim().isNotEmpty) {
+        unlockCount = int.tryParse(_unlockCountController.text.trim());
+      }
+
       final journalId = await _journalService.submitJournal(
         text: text,
-        // Optional: Add mobile data if available
-        // screenMinutes: 300,
-        // unlockCount: 50,
-        // sleepHours: 7.5,
-        // steps: 8000,
+        screenMinutes: screenMinutes,
+        unlockCount: unlockCount,
+        sleepHours: sleepHours,
+        steps: steps,
         dominantEmotion: selectedMood?.toLowerCase(),
       );
       if (!mounted) return;
       widget.controller.clear();
+      _screenTimeController.clear();
+      _stepsController.clear();
+      _sleepHoursController.clear();
+      _unlockCountController.clear();
       setState(() {
         selectedMood = null;
         _statusMessage = 'Journal saved successfully (ID: $journalId).';
@@ -158,6 +191,58 @@ class _JournalPageState extends State<JournalPage> {
 
             const SizedBox(height: 40),
 
+            // Metrics input fields
+            const Text(
+              "Daily Metrics",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _metricTextField(
+                    controller: _screenTimeController,
+                    label: "Phone Screen Time (minutes)",
+                    icon: Icons.phone_android,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _metricTextField(
+                    controller: _stepsController,
+                    label: "Steps Walked",
+                    icon: Icons.directions_walk,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _metricTextField(
+                    controller: _sleepHoursController,
+                    label: "Hours Slept",
+                    icon: Icons.bedtime,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _metricTextField(
+                    controller: _unlockCountController,
+                    label: "Unlock Count",
+                    icon: Icons.lock_open,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 40),
+
             // Buttons row
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -175,6 +260,11 @@ class _JournalPageState extends State<JournalPage> {
                     onPressed: () {
                       // Clear text controller
                       widget.controller.clear();
+                      // Clear metric controllers
+                      _screenTimeController.clear();
+                      _stepsController.clear();
+                      _sleepHoursController.clear();
+                      _unlockCountController.clear();
                       // Clear selected mood
                       setState(() {
                         selectedMood = null;
@@ -258,6 +348,48 @@ class _JournalPageState extends State<JournalPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _metricTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+        style: const TextStyle(fontSize: 14, color: Colors.black87),
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon, color: Colors.teal),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.teal, width: 2),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
     );
