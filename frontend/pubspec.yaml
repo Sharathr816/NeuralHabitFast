@@ -33,6 +33,7 @@ dependencies:
   speech_to_text: ^7.3.0
   #for mobile data tracking
   http: ^1.2.0
+  uuid: ^3.0.6
   #workmanager: ^0.5.0
 
 

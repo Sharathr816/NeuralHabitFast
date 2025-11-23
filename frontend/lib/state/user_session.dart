@@ -12,6 +12,7 @@ class UserSession extends ChangeNotifier {
   UserProfile? get user => _user;
   String? get token => _token;
   bool get isAuthenticated => _user != null;
+  String? get userId => _user?.userId.toString(); // adapt if id type is String/int
 
   void setUser(UserProfile? user, {String? token}) {
     _user = user;

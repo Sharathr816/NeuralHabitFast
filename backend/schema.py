@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 import datetime
 from pydantic import EmailStr, Field
 
@@ -31,3 +31,17 @@ class AuthResponse(BaseModel):
     name: str
     email: EmailStr
     signup_date: datetime.datetime
+
+# chatbot
+class ChatRequest(BaseModel):
+    session_id: str
+    message: str
+
+class MessageSchema(BaseModel):
+    role: str   # 'user' or 'assistant' (or 'system')
+    text: str
+    ts: Optional[str] = None
+
+class ChatResponse(BaseModel):
+    answer: str
+    history: List[MessageSchema] = []

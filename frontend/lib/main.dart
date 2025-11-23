@@ -48,7 +48,7 @@ import 'package:flutter_application_1/pages/first_page.dart';
 import 'package:flutter_application_1/pages/gamificationpage.dart';
 import 'package:flutter_application_1/pages/homepage.dart';
 import 'package:flutter_application_1/pages/ai_assistant.dart';
-import 'package:flutter_application_1/pages/coach_page.dart';
+// import 'package:flutter_application_1/pages/coach_page.dart';
 import 'package:flutter_application_1/pages/journal.dart';
 import 'package:flutter_application_1/pages/settings_page.dart';
 import 'package:flutter_application_1/services/auth_service.dart';
@@ -85,7 +85,7 @@ class NeuralHabitApp extends StatelessWidget {
             '/homepage': (context) => const HomePage(),
             '/settingspage': (context) => const SettingsPage(),
             '/aiassistantpage': (context) => const AiAssistant(),
-            '/coachpage': (context) => const CoachPage(),
+            // '/coachpage': (context) => const CoachPage(),
             '/journalpage': (context) => JournalPage(
                   controller: TextEditingController(),
                   onCancel: () {},

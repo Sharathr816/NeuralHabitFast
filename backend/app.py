@@ -1,5 +1,5 @@
 import torch
-import os
+import os,sys
 import joblib
 import shap
 import pandas as pd
@@ -16,30 +16,40 @@ from config_main import emotion_labels, entity_labels, emotion_model, entity_mod
 from config_main import  MODELS_DIR, MODEL_FILENAME, FEATURE_COLS_FILENAME, MODEL_DIR_REC    
 from Analysis.utils import NEL, PEL, Neutral_Emotions
 from typing import List, Dict, Any
-from schema import FeaturesPayload, SignupPayload, LoginPayload, AuthResponse
-from pydantic import EmailStr, Field
+from schema import FeaturesPayload, SignupPayload, LoginPayload, AuthResponse, ChatRequest, ChatResponse
+from pydantic import EmailStr, Field, BaseModel
 import tensorflow as tf
 from tensorflow.keras import layers, Model, Input
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 import keras.ops as K
 from tensorflow.keras.layers import Layer
 from fastapi.middleware.cors import CORSMiddleware
+import sys
+from pathlib import Path
+from Coach.bot import RAGChatbot
 
+chatbot = RAGChatbot() 
 
 app = FastAPI()
+
 
 # DEV: allow your frontend origin. For quick testing you can use ["*"], but DON'T use that in production.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # or ["*"] for quick dev
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
 #only creates tables IF they don’t already exist.
 Base.metadata.create_all(bind=engine)
+
+# for habit coach
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.abspath(os.path.join(HERE, "."))  # adjust if coach_api sits deeper
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
 
 # user authentication utilities
 # ---------- Password helpers ----------
@@ -531,6 +541,67 @@ def analyse_journal(payload: JournalIn, background_tasks: BackgroundTasks):
     background_tasks.add_task(process_journal_pipeline, payload.user_id, journal_id, payload, ner_outputs, top5_labels, top5_probs)
     message = "Journal received and is being processed"
     return {"message": message}
+
+@app.get("/coach/ping")
+async def ping():
+    return {"status": "ok", "detail": "coach API up"}
+
+
+@app.post("/coach/chat", response_model=ChatResponse)
+async def coach_chat(req: ChatRequest):
+    try:
+        result = chatbot.chat(req.session_id, req.message)  # result can be dict or ChatResponse
+        # if chatbot.chat returns dict already, ensure keys are answer & history
+        if isinstance(result, dict):
+            # normalize keys if needed (support older return)
+            answer = result.get("answer") or result.get("reply") or ""
+            history = result.get("history", [])
+            return ChatResponse(answer=answer, history=history)
+        # If it's already a ChatResponse instance, just return it
+        return result
+    except Exception as e:
+        #logger.exception("Error in /coach/chat")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/coach/history")
+async def coach_history(session_id: str):
+    try:
+        history = chatbot.get_session_history(session_id)  # your existing method
+        # convert to simple dicts
+        serialized = []
+        for m in history.messages:
+            role = getattr(m, "role", getattr(m, "author", "assistant"))
+            text = getattr(m, "text", getattr(m, "content", ""))
+            ts = getattr(m, "ts", None)
+            serialized.append({"role": role, "text": text, "ts": ts})
+        return {"history": serialized}
+    except Exception as e:
+        # logger.exception("Error in /coach/history")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/coach/clear_history")
+async def clear_history(payload: dict):
+    session_id = payload.get("session_id")
+    if not session_id:
+        raise HTTPException(status_code=400, detail="session_id required")
+
+    try:
+        history = chatbot.get_session_history(session_id)
+        chatbot.last_seen_analysis = {}  # reset any analysis cache
+        # If the history object has a method to clear messages:
+        if hasattr(history, 'clear') and callable(history.clear):
+            history.clear()
+        elif hasattr(history, 'delete_all') and callable(history.delete_all):
+            history.delete_all()
+        else:
+            # fallback to explicit SQL deletion (see Option B)
+            raise RuntimeError("No clear method on history object")
+
+        return {"status": "cleared"}
+    except Exception as e:
+        print("Error clearing history")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 # @app.post("/analyse-day")

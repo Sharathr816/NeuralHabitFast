@@ -1,367 +1,420 @@
+
+
+// frontend/lib/pages/ai_assistant.dart
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../services/coach_service.dart';
-import 'coach_page.dart';
+import 'package:http/http.dart' as http;
+import 'package:uuid/uuid.dart';
+import 'package:flutter_application_1/state/user_session.dart';
 
 class AiAssistant extends StatefulWidget {
   const AiAssistant({super.key});
 
   @override
-  State<AiAssistant> createState() => _AiAssistantState();
+  _AiAssistantState createState() => _AiAssistantState();
 }
 
 class _AiAssistantState extends State<AiAssistant> {
-  final TextEditingController _messageController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-  final List<ChatMessage> _messages = [];
+  final TextEditingController _ctrl = TextEditingController();
+  final ScrollController _scrollCtrl = ScrollController();
+  final List<_ChatMessage> _messages = [];
+  bool _isSending = false;
+  String _sessionId = UserSession().userId.toString();
+
+  // dev: point to your FastAPI endpoint
+  static const String _coachUrl = 'http://127.0.0.1:8000/coach/chat';
+  // history endpoint (change if your backend uses different path)
+  static const String _coachHistoryUrl = 'http://127.0.0.1:8000/coach/history';
+
+  String _sanitize(String? s) {
+  if (s == null) return '';
+  var out = s;
+
+  // Remove code fences and inline code
+  out = out.replaceAll(RegExp(r'```[\s\S]*?```'), '');
+  out = out.replaceAll('`', '');
+
+  // Convert markdown list markers to readable bullets beginning on their own line
+  out = out.replaceAllMapped(RegExp(r'\n\s*[-\*]\s+'), (m) => '\n- ');
+
+  // Optionally convert "1. " lists to new lines (keep numbering)
+  out = out.replaceAllMapped(RegExp(r'\n\s*(\d+)\.\s+'), (m) => '\n${m.group(1)}. ');
+
+  // Convert markdown links [text](url) -> text
+  out = out.replaceAllMapped(RegExp(r'\[([^\]]+)\]\([^\)]+\)'), (m) => m.group(1) ?? '');
+
+  // Remove bold/italic markers but keep content
+  out = out.replaceAllMapped(RegExp(r'(\*\*|\*|__|~~)(.*?)\1'), (m) => m.group(2) ?? '');
+
+  // Replace table pipes with spaced separator, keep lines
+  out = out.split('\n').map((ln) {
+    var l = ln.trim();
+    if (l.startsWith('|')) l = l.substring(1);
+    if (l.endsWith('|')) l = l.substring(0, l.length - 1);
+    l = l.replaceAll(RegExp(r'\s*\|\s*'), ' | ');
+    return l;
+  }).join('\n');
+
+  // Collapse >2 consecutive newlines to two (paragrah gap)
+  out = out.replaceAll(RegExp(r'\n{3,}'), '\n\n');
+
+  // collapse multiple spaces but preserve newlines
+  out = out.replaceAll(RegExp(r'[ \t]{2,}'), ' ');
+
+  // trim each line
+  out = out.split('\n').map((l) => l.trim()).where((l) => l.isNotEmpty).join('\n');
+
+  return out.trim();
+}
+
+
 
   @override
   void initState() {
     super.initState();
-    // Add welcome message
-    _messages.add(ChatMessage(
-      text: "Hello! I'm your AI habit assistant. I can help you with:\n\n• Habit tracking insights\n• Motivation and tips\n• Goal setting advice\n• Progress analysis\n\nHow can I assist you today?",
-      isUser: false,
-      timestamp: DateTime.now(),
-    ));
+    _loadHistory(); // load server history when screen opens
   }
+
+  // Paste into your _AiAssistantState (replace existing _loadHistory if any)
+Future<void> _loadHistory() async {
+  try {
+    final uri = Uri.parse('http://127.0.0.1:8000/coach/history?session_id=$_sessionId');
+    final resp = await http.get(uri, headers: {'Content-Type': 'application/json'});
+    if (resp.statusCode != 200) return;
+
+    final body = jsonDecode(resp.body);
+    if (body is! Map || !body.containsKey('history')) return;
+
+    final raw = body['history'] as List<dynamic>;
+
+    final List<_ChatMessage> parsed = raw.map((e) {
+      final m = (e as Map<String, dynamic>);
+      final roleStr = (m['role'] ?? m['author'] ?? 'assistant').toString().toLowerCase();
+      final contentRaw = (m['text'] ?? m['message'] ?? m['content'] ?? '').toString();
+      DateTime? ts;
+      if (m.containsKey('ts') && (m['ts'] != null)) {
+        ts = DateTime.tryParse(m['ts'].toString());
+      }
+      final author = (roleStr == 'user' || roleStr == 'me' || roleStr == 'self') ? Author.user : Author.bot;
+      return _ChatMessage(content: _sanitize(contentRaw), author: author, ts: ts);
+    }).toList();
+
+    // Ensure oldest-first ordering for WhatsApp-like timeline
+    parsed.sort((a, b) {
+      final at = a.ts ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final bt = b.ts ?? DateTime.fromMillisecondsSinceEpoch(0);
+      return at.compareTo(bt);
+    });
+
+    setState(() {
+      _messages
+        ..clear()
+        ..addAll(parsed);
+    });
+
+    // scroll after frame rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+  } catch (e, st) {
+    debugPrint('loadHistory error: $e\n$st');
+  }
+}
+
+
+
+  Future<void> _sendMessage() async {
+    final text = _ctrl.text.trim();
+    if (text.isEmpty) return;
+
+    // optimistic UI: add user's message
+    setState(() {
+      _messages.add(
+        _ChatMessage(content: text, author: Author.user, ts: DateTime.now()),
+      );
+      _isSending = true;
+      _ctrl.clear();
+    });
+
+    _scrollToBottom();
+
+    try {
+      final resp = await http.post(
+        Uri.parse(_coachUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'session_id': _sessionId, 'message': text}),
+      );
+
+      if (resp.statusCode == 200) {
+        final body = jsonDecode(resp.body);
+        // prefer canonical history if server returns it
+        if (body is Map && body.containsKey('history')) {
+          final hist = (body['history'] as List<dynamic>).map((e) {
+            final m = e as Map<String, dynamic>;
+            return _ChatMessage(
+              content: _sanitize(
+                m['text']?.toString() ?? m['message']?.toString() ?? '',
+              ),
+              author: (m['role'] == 'user') ? Author.user : Author.bot,
+              ts: m.containsKey('ts')
+                  ? DateTime.tryParse(m['ts']?.toString() ?? '')
+                  : null,
+            );
+          }).toList();
+
+          setState(() {
+            _messages.clear();
+            _messages.addAll(hist);
+          });
+        } else {
+          // fallback to 'reply' string
+          final reply = body['reply'] as String? ?? 'No reply';
+          setState(() {
+            _messages.add(
+              _ChatMessage(
+                content: _sanitize(reply),
+                author: Author.bot,
+                ts: DateTime.now(),
+              ),
+            );
+          });
+        }
+      } else {
+        setState(() {
+          _messages.add(
+            _ChatMessage(
+              content: 'Error ${resp.statusCode}: ${resp.body}',
+              author: Author.bot,
+              ts: DateTime.now(),
+            ),
+          );
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _messages.add(
+          _ChatMessage(
+            content: 'Network error: $e',
+            author: Author.bot,
+            ts: DateTime.now(),
+          ),
+        );
+      });
+    } finally {
+      setState(() => _isSending = false);
+      _scrollToBottom();
+    }
+  }
+
+void _scrollToBottom() {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (_scrollCtrl.hasClients) {
+      _scrollCtrl.animateTo(
+        _scrollCtrl.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
+    }
+  });
+}
+
 
   @override
   void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
+    _ctrl.dispose();
+    _scrollCtrl.dispose();
     super.dispose();
   }
 
-  void _sendMessage() {
-    final text = _messageController.text.trim();
-    if (text.isEmpty) return;
+  Widget _buildMessageTile(_ChatMessage m) {
+  final isUser = m.author == Author.user;
+  final bubbleColor = isUser ? Color(0xFFDCF8C6) : Colors.white;
+  final textColor = Colors.black87;
+  final radius = BorderRadius.only(
+    topLeft: Radius.circular(16),
+    topRight: Radius.circular(16),
+    bottomLeft: Radius.circular(isUser ? 12 : 0),
+    bottomRight: Radius.circular(isUser ? 0 : 12),
+  );
 
-    setState(() {
-      _messages.add(ChatMessage(
-        text: text,
-        isUser: true,
-        timestamp: DateTime.now(),
-      ));
-    });
+  return Container(
+    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    child: Row(
+      mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        if (!isUser) const SizedBox(width: 6),
+        Flexible(
+          child: Container(
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+            decoration: BoxDecoration(
+              color: bubbleColor,
+              borderRadius: radius,
+              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0,1))],
+            ),
+            child: Column(
+              crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                SelectableText(
+                  m.content,
+                  style: TextStyle(color: textColor, fontSize: 15, height: 1.35),
+                  showCursor: false,
+                  // SelectableText wraps by default. If you prefer non-selectable:
+                  // Text(m.content, style: ..., softWrap: true, overflow: TextOverflow.visible)
+                ),
 
-    _messageController.clear();
-    _scrollToBottom();
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      m.ts != null ? _formatTime(m.ts) : '',
+                      style: TextStyle(fontSize: 10, color: Colors.black45),
+                    ),
+                    if (isUser) const SizedBox(width: 6),
+                    if (isUser) Icon(Icons.done_all, size: 14, color: Colors.blueAccent),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+        if (isUser) const SizedBox(width: 6),
+      ],
+    ),
+  );
+}
 
-    // Simulate AI response (will be replaced with actual API call later)
-    _simulateAIResponse(text);
-  }
 
-  void _simulateAIResponse(String userMessage) {
-    // This is a placeholder - will be replaced with actual AI integration
-    Future.delayed(const Duration(milliseconds: 800), () {
-      if (mounted) {
-        setState(() {
-          _messages.add(ChatMessage(
-            text: "Thank you for your message! The AI assistant feature is currently being set up. Your message: \"$userMessage\" will be processed once the model is trained and integrated.",
-            isUser: false,
-            timestamp: DateTime.now(),
-          ));
-        });
-        _scrollToBottom();
-      }
-    });
-  }
-
-  void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
-  }
-
-  void _sendQuickMessage(String message) {
-    _messageController.text = message;
-    _sendMessage();
+  String _formatTime(DateTime? t) {
+    if (t == null) return '';
+    final dt = t.toLocal();
+    final hh = dt.hour.toString().padLeft(2, '0');
+    final mm = dt.minute.toString().padLeft(2, '0');
+    return '$hh:$mm';
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text('AI Assistant'),
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.psychology),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CoachPage()),
-              );
-            },
-            tooltip: 'Get Habit Coaching',
-          ),
+              tooltip: 'Clear chat history',
+              icon: const Icon(Icons.refresh),
+              onPressed: () async {
+                try {
+                  // POST JSON body (safer than query params)
+                  final uri = Uri.parse('http://127.0.0.1:8000/coach/clear_history');
+                  final resp = await http.post(
+                    uri,
+                    headers: {'Content-Type': 'application/json'},
+                    body: jsonEncode({'session_id': _sessionId}),
+                  );
+
+                  if (resp.statusCode == 200) {
+                    // server confirmed clear -> clear UI and re-load canonical history (should be empty)
+                    setState(() => _messages.clear());
+
+                    // optional: reload from server to be 100% synced
+                    await _loadHistory();
+                  } else {
+                    // show simple error bubble in UI
+                    setState(() => _messages.add(
+                      _ChatMessage(content: 'Error clearing history: ${resp.statusCode}', author: Author.bot),
+                    ));
+                  }
+                } catch (e) {
+                  setState(() => _messages.add(
+                    _ChatMessage(content: 'Network error clearing history: $e', author: Author.bot),
+                  ));
+                }
+              },
+            ),
+
         ],
       ),
       body: Column(
-      children: [
-          // Quick suggestions (shown only when no user messages)
-          if (_messages.where((m) => m.isUser).isEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.teal.shade50,
-                border: Border(
-                  bottom: BorderSide(color: Colors.teal.shade100),
-                ),
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollCtrl,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              itemCount: _messages.length,
+              itemBuilder: (_, i) => _buildMessageTile(_messages[i]),
+            ),
+          ),
+          if (_isSending)
+            LinearProgressIndicator(
+              minHeight: 3,
+              color: theme.colorScheme.primary,
+            ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12.0,
+                vertical: 8,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Text(
-                    'Quick Questions:',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.teal.shade900,
+                  Expanded(
+                    child: TextField(
+                      controller: _ctrl,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) => _sendMessage(),
+                      decoration: const InputDecoration(
+                        hintText: 'Ask the coach…',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _buildQuickChip(
-                        'How can I stay motivated?',
-                        () => _sendQuickMessage('How can I stay motivated?'),
-                      ),
-                      _buildQuickChip(
-                        'Analyze my progress',
-                        () => _sendQuickMessage('Analyze my progress'),
-                      ),
-                      _buildQuickChip(
-                        'Habit suggestions',
-                        () => _sendQuickMessage('Give me habit suggestions'),
-                      ),
-                    ],
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: _isSending ? null : _sendMessage,
+                    child: const Icon(Icons.send),
                   ),
                 ],
               ),
             ),
-
-          // Messages list
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                return _buildMessageBubble(_messages[index]);
-              },
-            ),
-          ),
-
-          // Input area
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.shade200,
-                  blurRadius: 4,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: InputDecoration(
-                          hintText: 'Type your message...',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            borderSide: const BorderSide(color: Colors.teal),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                        maxLines: null,
-                        textInputAction: TextInputAction.send,
-                        onSubmitted: (_) => _sendMessage(),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.teal,
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.send, color: Colors.white),
-                        onPressed: _sendMessage,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ),
         ],
-    ));
-  }
-
-  Widget _buildQuickChip(String label, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.teal.shade200),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.teal.shade700,
-          ),
-        ),
       ),
     );
-  }
-
-  Widget _buildMessageBubble(ChatMessage message) {
-    return Align(
-      alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
-        child: Row(
-          mainAxisAlignment:
-              message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (!message.isUser) ...[
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: Colors.teal.shade100,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.smart_toy,
-                  size: 20,
-                  color: Colors.teal.shade700,
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
-            Flexible(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: message.isUser
-                      ? Colors.teal
-                      : Colors.grey.shade100,
-                  borderRadius: BorderRadius.only(
-                    topLeft: const Radius.circular(16),
-                    topRight: const Radius.circular(16),
-                    bottomLeft: Radius.circular(
-                      message.isUser ? 16 : 4,
-                    ),
-                    bottomRight: Radius.circular(
-                      message.isUser ? 4 : 16,
-                    ),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      message.text,
-                      style: TextStyle(
-                        color: message.isUser ? Colors.white : Colors.black87,
-                        fontSize: 14,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _formatTime(message.timestamp),
-                      style: TextStyle(
-                        color: message.isUser
-                            ? Colors.white70
-                            : Colors.grey.shade600,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (message.isUser) ...[
-              const SizedBox(width: 8),
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: Colors.teal.shade200,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.person,
-                  size: 20,
-                  color: Colors.teal.shade900,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _formatTime(DateTime timestamp) {
-    final hour = timestamp.hour.toString().padLeft(2, '0');
-    final minute = timestamp.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
   }
 }
 
-class ChatMessage {
-  final String text;
-  final bool isUser;
-  final DateTime timestamp;
+enum Author { user, bot }
 
-  ChatMessage({
-    required this.text,
-    required this.isUser,
-    required this.timestamp,
-  });
+class _ChatMessage {
+  final String content;
+  final Author author;
+  final DateTime? ts;
+
+  _ChatMessage({required this.content, required this.author, this.ts});
+
+  factory _ChatMessage.fromJson(Map<String, dynamic> j) {
+    final role = (j['role'] ?? j['author'] ?? '').toString().toLowerCase();
+    final content = (j['text'] ?? j['message'] ?? j['content'] ?? '')
+        .toString();
+    DateTime? ts;
+    if (j.containsKey('ts')) {
+      try {
+        ts = DateTime.parse(j['ts'].toString());
+      } catch (_) {
+        ts = null;
+      }
+    }
+    return _ChatMessage(
+      content: content,
+      author: role == 'user' ? Author.user : Author.bot,
+      ts: ts,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'role': author == Author.user ? 'user' : 'assistant',
+    'text': content,
+    'ts': ts?.toIso8601String(),
+  };
 }
