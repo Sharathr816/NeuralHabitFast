@@ -7,10 +7,14 @@ from pydantic import EmailStr, Field
 class JournalIn(BaseModel):
     user_id: int
     text: str
-    screen_minutes: int | None = None
-    unlock_count: int | None = None
-    sleep_hours: float | None = None
-    steps: int | None = None
+    screen_minutes: Optional[int] = None
+    unlock_count: Optional[int] = None
+    sleep_hours: Optional[float] = None
+    steps: Optional[int] = None
+
+class JournalResponse(BaseModel):
+    message: str
+    journal_id: Optional[int] = None
 
 # for analysis payload
 class FeaturesPayload(BaseModel):

@@ -102,7 +102,7 @@ class _JournalPageState extends State<JournalPage> {
         unlockCount: unlockCount,
         sleepHours: sleepHours,
         steps: steps,
-        dominantEmotion: selectedMood?.toLowerCase(),
+        // dominantEmotion: selectedMood?.toLowerCase(),
       );
       if (!mounted) return;
       widget.controller.clear();

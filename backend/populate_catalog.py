@@ -25,7 +25,7 @@ DOPAMINE_LEVEL_MAP = {
 def load_habit_catalog() -> list:
     """Load habit catalog from JSON file."""
     # Look for habit_catalog.json in backend/RecommendationEngine/
-    catalog_path = Path(__file__).resolve().parent / "Recommendation" / "habit_catalog.json"
+    catalog_path = Path(__file__).resolve().parent / "Recommendation" / "habit_catalog_clean.json"
     
     if not catalog_path.exists():
         raise FileNotFoundError(f"Habit catalog not found at {catalog_path}")

@@ -73,9 +73,10 @@ class _AiAssistantState extends State<AiAssistant> {
   void initState() {
     super.initState();
     _loadHistory(); // load server history when screen opens
+    //_startCoachSession(); // start session if no history
   }
 
-  // Paste into your _AiAssistantState (replace existing _loadHistory if any)
+  
 Future<void> _loadHistory() async {
   try {
     final uri = Uri.parse('http://127.0.0.1:8000/coach/history?session_id=$_sessionId');
@@ -86,20 +87,18 @@ Future<void> _loadHistory() async {
     if (body is! Map || !body.containsKey('history')) return;
 
     final raw = body['history'] as List<dynamic>;
+    final userRoles = {'user', 'human', 'me', 'self', 'sender', 'client'};
 
-    final List<_ChatMessage> parsed = raw.map((e) {
+    final parsed = raw.map((e) {
       final m = (e as Map<String, dynamic>);
-      final roleStr = (m['role'] ?? m['author'] ?? 'assistant').toString().toLowerCase();
+      final roleRaw = (m['role'] ?? m['author'] ?? '').toString().toLowerCase();
       final contentRaw = (m['text'] ?? m['message'] ?? m['content'] ?? '').toString();
       DateTime? ts;
-      if (m.containsKey('ts') && (m['ts'] != null)) {
-        ts = DateTime.tryParse(m['ts'].toString());
-      }
-      final author = (roleStr == 'user' || roleStr == 'me' || roleStr == 'self') ? Author.user : Author.bot;
+      if (m.containsKey('ts') && m['ts'] != null) ts = DateTime.tryParse(m['ts'].toString());
+      final author = userRoles.contains(roleRaw) ? Author.user : Author.bot;
       return _ChatMessage(content: _sanitize(contentRaw), author: author, ts: ts);
     }).toList();
 
-    // Ensure oldest-first ordering for WhatsApp-like timeline
     parsed.sort((a, b) {
       final at = a.ts ?? DateTime.fromMillisecondsSinceEpoch(0);
       final bt = b.ts ?? DateTime.fromMillisecondsSinceEpoch(0);
@@ -112,12 +111,92 @@ Future<void> _loadHistory() async {
         ..addAll(parsed);
     });
 
-    // scroll after frame rendered
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-  } catch (e, st) {
-    debugPrint('loadHistory error: $e\n$st');
-  }
+  } catch (e) { debugPrint('loadHistory err: $e'); }
 }
+
+// to get into analysis mode if no prior history
+// Future<void> _startCoachSession() async {
+//   // avoid spamming if somehow called this twice
+//   if (_messages.isNotEmpty) return;
+
+//   setState(() {
+//     _isSending = true;
+//   });
+
+//   try {
+//     final resp = await http.post(
+//       Uri.parse(_coachUrl),
+//       headers: {'Content-Type': 'application/json'},
+//       body: jsonEncode({
+//         'session_id': _sessionId,
+//         'message': "", // fake input to trigger first-turn analysis
+//       }),
+//     );
+
+//     if (resp.statusCode == 200) {
+//       final body = jsonDecode(resp.body);
+
+//       if (body is Map && body.containsKey('history')) {
+//         final hist = (body['history'] as List<dynamic>).map((e) {
+//           final m = e as Map<String, dynamic>;
+//           return _ChatMessage(
+//             content: _sanitize(
+//               m['text']?.toString() ?? m['message']?.toString() ?? '',
+//             ),
+//             author: (m['role'] == 'user') ? Author.user : Author.bot,
+//             ts: m.containsKey('ts')
+//                 ? DateTime.tryParse(m['ts']?.toString() ?? '')
+//                 : null,
+//           );
+//         }).toList();
+
+//         setState(() {
+//           _messages
+//             ..clear()
+//             ..addAll(hist);
+//         });
+//       } else {
+//         final reply =
+//             body['answer'] as String? ?? body['reply'] as String? ?? 'No reply';
+//         setState(() {
+//           _messages.add(
+//             _ChatMessage(
+//               content: _sanitize(reply),
+//               author: Author.bot,
+//               ts: DateTime.now(),
+//             ),
+//           );
+//         });
+//       }
+//     } else {
+//       setState(() {
+//         _messages.add(
+//           _ChatMessage(
+//             content: 'Error ${resp.statusCode}: ${resp.body}',
+//             author: Author.bot,
+//             ts: DateTime.now(),
+//           ),
+//         );
+//       });
+//     }
+//   } catch (e) {
+//     setState(() {
+//       _messages.add(
+//         _ChatMessage(
+//           content: 'Network error: $e',
+//           author: Author.bot,
+//           ts: DateTime.now(),
+//         ),
+//       );
+//     });
+//   } finally {
+//     setState(() {
+//       _isSending = false;
+//     });
+//     _scrollToBottom();
+//   }
+// }
 
 
 

@@ -1,0 +1,316 @@
+absl-py
+accelerate
+ace-tools
+aiofiles
+aiohappyeyeballs
+aiohttp
+aiosignal
+annotated-doc
+annotated-types
+anyio
+astunparse
+attrs
+audioop-lts
+backoff
+bcrypt
+brotli
+build
+cachetools
+certifi
+charset-normalizer
+chromadb
+click
+cloudpickle
+colorama
+coloredlogs
+contourpy
+cycler
+dataclasses-json
+distro
+dnspython
+durationpy
+email-validator
+fastapi
+ffmpy
+filelock
+flatbuffers
+fonttools
+frozenlist
+fsspec
+gast
+gliner
+google-auth
+google-pasta
+googleapis-common-protos
+gradio
+gradio-client
+greenlet
+groovy
+groq
+grpcio
+h11
+h5py
+httpcore
+httptools
+httpx
+httpx-sse
+huggingface-hub
+humanfriendly
+idna
+importlib-metadata
+importlib-resources
+jinja2
+joblib
+jsonpatch
+jsonpointer
+jsonschema
+jsonschema-specifications
+keras
+kiwisolver
+kubernetes
+langchain
+langchain-chroma
+langchain-classic
+langchain-community
+langchain-core
+langchain-groq
+langchain-huggingface
+langchain-text-splitters
+langgraph
+langgraph-checkpoint
+langgraph-prebuilt
+langgraph-sdk
+langsmith
+libclang
+llvmlite
+markdown
+markdown-it-py
+markupsafe
+marshmallow
+matplotlib
+mdurl
+ml-dtypes
+mmh3
+mpmath
+multidict
+mypy-extensions
+namex
+networkx
+numba
+numpy
+oauthlib
+onnxruntime
+opentelemetry-api
+opentelemetry-exporter-otlp-proto-common
+opentelemetry-exporter-otlp-proto-grpc
+opentelemetry-proto
+opentelemetry-sdk
+opentelemetry-semantic-conventions
+opt-einsum
+optree
+orjson
+ormsgpack
+overrides
+packaging
+pandas
+pillow
+posthog
+propcache
+protobuf
+psutil
+psycopg2-binary
+pyarrow
+pyasn1
+pyasn1-modules
+pybase64
+pydantic
+pydantic-core
+pydantic-settings
+pydub
+pygments
+pyparsing
+pypdf
+pypika
+pyproject-hooks
+pyreadline3
+python-dateutil
+python-dotenv
+python-multipart
+pytz
+pyyaml
+referencing
+regex
+requests
+requests-oauthlib
+requests-toolbelt
+rich
+rpds-py
+rsa
+ruff
+safehttpx
+safetensors
+scikit-learn
+scipy
+semantic-version
+sentence-transformers
+sentencepiece
+setuptools
+shap
+shellingham
+six
+slicer
+sniffio
+sqlalchemy
+starlette
+sympy
+tenacity
+tensorboard
+tensorboard-data-server
+tensorflow
+termcolor
+tf-keras
+threadpoolctl
+tokenizers
+tomlkit
+torch
+tqdm
+transformers
+typer
+typing-extensions
+typing-inspect
+typing-inspection
+tzdata
+urllib3
+uvicorn
+watchfiles
+websocket-client
+websockets
+werkzeug
+wheel
+wrapt
+xgboost
+xxhash
+yarl
+zipp
+zstandard
+
+import os
+from dotenv import load_dotenv
+from langchain_groq import ChatGroq
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
+from langchain_community.chat_message_histories import SQLChatMessageHistory
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.output_parsers import StrOutputParser
+
+from src.config import (
+    GROQ_MODEL_NAME, EMBEDDING_MODEL, VECTOR_DB_DIR, 
+    SQL_DB_PATH, SYSTEM_PROMPT
+)
+
+load_dotenv()
+
+class RAGChatbot:
+    def __init__(self):
+        # LLM
+        self.llm = ChatGroq(
+            model=GROQ_MODEL_NAME,
+            temperature=0,
+            api_key=os.getenv("GROQ_API_KEY")
+        )
+
+        # Embedding + Chroma
+        self.embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+        self.vectorstore = Chroma(
+            persist_directory=VECTOR_DB_DIR,
+            embedding_function=self.embeddings
+        )
+        self.retriever = self.vectorstore.as_retriever(search_kwargs={"k": 3})
+
+        # Prompts
+        self.rewrite_prompt = ChatPromptTemplate.from_messages([
+            ("system",
+             "Rewrite the user's last message into a standalone question. "
+             "Do NOT answer. Only rewrite."),
+            MessagesPlaceholder("chat_history"),
+            ("human", "{input}")
+        ])
+
+        self.qa_prompt = ChatPromptTemplate.from_messages([
+            ("system", SYSTEM_PROMPT),
+            MessagesPlaceholder("chat_history"),
+            ("system", "CONTEXT:\n{context}"),
+            ("human", "{input}")
+        ])
+
+        self.parser = StrOutputParser()
+
+    # ---------------- HISTORY HANDLING -----------------
+    def get_session_history(self, session_id):
+        os.makedirs(os.path.dirname(SQL_DB_PATH), exist_ok=True)
+        return SQLChatMessageHistory(
+            session_id=session_id,
+            connection="sqlite:///" + SQL_DB_PATH
+        )
+
+    # ----------------- UTILITIES ------------------------
+    def _rewrite_query(self, history, user_input):
+        """Uses the LLM to rewrite dependent questions into standalone queries."""
+        if len(history.messages) == 0:
+            return user_input  # no need to rewrite
+
+        prompt = self.rewrite_prompt.format(
+            chat_history=history.messages,
+            input=user_input
+        )
+
+        rewritten = self.llm.invoke(prompt)
+        return rewritten.content
+
+    def _retrieve_context(self, standalone_query):
+        # Direct Chroma search (bypassing LCEL’s VectorStoreRetriever)
+        docs = self.vectorstore.similarity_search(
+            standalone_query,
+            k=3
+        )
+        return "\n\n".join(doc.page_content for doc in docs)
+
+
+        # ----------------- MAIN CHAT ------------------------
+    def chat(self, session_id, user_input):
+        print("\n📌 BOT CHAT CALLED WITH SESSION:", session_id)
+        history = self.get_session_history(session_id)
+        print("📚 Loaded messages in history:", len(history.messages))
+
+            # 1. rewrite (if needed)
+        standalone_query = self._rewrite_query(history, user_input)
+
+            # 2. retrieve docs
+        context = self._retrieve_context(standalone_query)
+
+            # 3. Build QA prompt
+        qa_prompt = self.qa_prompt.format(
+                chat_history=history.messages,
+                input=user_input,
+                context=context
+            )
+
+            # 4. LLM generates final answer
+        response = self.llm.invoke(qa_prompt)
+        answer = response.content
+
+            # 5. Save user + assistant messages
+        history.add_user_message(user_input)
+        history.add_ai_message(answer)
+
+        return answer
+
+
+so what i am thinking is....
+now in neural habit the flow goes like this
+the user inputs data like journal and mobile data like screen time, steps, sleep_hrs and unlock counts, all of this is stored in journal(emotion is already extracted from journal) table with userid as foreign...
+at the same time, analysis engine analysise behaviour and store in in analysis table using user id and journal id as foreign.
+the analysis data and journal data is given to recommendation engien and it provides the habit recommendation with only habit id, this habit id is in habit catalog database, 
+now how do i make this database tables recent entries i.e, journal, analysis and the recommendation as context and pass it to the chatbot so that it gives responses and guidance to user based on that??
+the database is postgres.
+and how to make the chatbot retrieve history related to that user only

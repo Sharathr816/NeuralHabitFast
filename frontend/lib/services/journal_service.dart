@@ -1,58 +1,66 @@
+// frontend/lib/services/journal_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_application_1/config.dart';
 import 'package:flutter_application_1/state/user_session.dart';
 
-class JournalService {
-  final UserSession _session = UserSession();
+// change to your actual backend base URL if different
+const String _baseUrl = 'http://127.0.0.1:8000';
 
-  Future<String> submitJournal({
+class JournalService {
+  final String baseUrl;
+  JournalService({this.baseUrl = _baseUrl});
+
+  /// Submits the journal + metrics to the backend analyse endpoint.
+  /// Returns the created journal_id on success.
+  Future<int> submitJournal({
     required String text,
     int? screenMinutes,
     int? unlockCount,
     double? sleepHours,
     int? steps,
-    String? dominantEmotion,
-    double? dominantEmotionScore,
+    // string? dominantEmotion,
   }) async {
-    final user = _session.user;
-    if (user == null) {
-      throw Exception('You must be logged in to submit a journal.');
+    // get user id from session (you already use UserSession in other files)
+    final userId = UserSession().userId;
+    if (userId == null) {
+      throw Exception('No user session available');
     }
 
+    final url = Uri.parse('$baseUrl/journal-analyse');
+
     final payload = {
-      'user_id': user.userId,
+      'user_id': userId,
       'text': text,
-      if (screenMinutes != null) 'screen_minutes': screenMinutes,
-      if (unlockCount != null) 'unlock_count': unlockCount,
-      if (sleepHours != null) 'sleep_hours': sleepHours,
-      if (steps != null) 'steps': steps,
-      if (dominantEmotion != null) 'dominant_emotion': dominantEmotion,
-      if (dominantEmotionScore != null) 'dominant_emotion_score': dominantEmotionScore,
+      'screen_minutes': screenMinutes,
+      'unlock_count': unlockCount,
+      'sleep_hours': sleepHours,
+      'steps': steps,
+      //'dominant_emotion': dominantEmotion,
     };
 
-    final response = await http.post(
-      Uri.parse('$backendBaseUrl/ingest/journal'),
+    final resp = await http.post(
+      url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(payload),
     );
 
-    if (response.statusCode >= 400) {
-      final detail = _extractError(response.body);
-      throw Exception('Failed to submit journal: $detail');
-    }
-
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    return data['journal_id'].toString();
-  }
-
-  String _extractError(String body) {
-    try {
-      final data = jsonDecode(body) as Map<String, dynamic>;
-      return data['detail']?.toString() ?? 'Unknown error';
-    } catch (_) {
-      return 'Unknown error';
+    if (resp.statusCode == 200) {
+      final body = jsonDecode(resp.body);
+      // expect backend to return journal_id in response
+      if (body != null && body['journal_id'] != null) {
+        return body['journal_id'] as int;
+      }
+      // fallback — server confirms but didn't return id
+      return -1;
+    } else {
+      // bubble up server message if provided
+      String err = 'Failed to save journal';
+      try {
+        final body = jsonDecode(resp.body);
+        if (body is Map && body.containsKey('detail')) err = body['detail'].toString();
+        if (body is Map && body.containsKey('message')) err = body['message'].toString();
+      } catch (_) {}
+      throw Exception('Server error (${resp.statusCode}): $err');
     }
   }
 }
-

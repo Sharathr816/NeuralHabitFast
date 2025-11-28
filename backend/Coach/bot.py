@@ -68,11 +68,13 @@ class RAGChatbot:
         ])
 
         self.qa_prompt = ChatPromptTemplate.from_messages([
-            ("system", SYSTEM_PROMPT),
-            MessagesPlaceholder("chat_history"),
-            ("system", "CONTEXT:\n{context}"),
-            ("human", "{input}")
-        ])
+                    ("system", SYSTEM_PROMPT),
+                    MessagesPlaceholder("chat_history"),
+                    # telling it that this is RECENT_USER_DATA and may be empty
+                    ("system", "RECENT_USER_DATA (may be empty, and is only refreshed when new analysis is available):\n{context}"),
+                    ("human", "{input}")
+                ])
+
 
         self.last_seen_analysis = {}
         self.parser = StrOutputParser()
@@ -235,24 +237,31 @@ class RAGChatbot:
         return "\n\n".join(doc.page_content for doc in docs)
     
     def _serialize_message(self, m):
-            # LangChain ChatMessageHistory uses types like "human", "ai"
-            raw_role = getattr(m, "type", None) or getattr(m, "role", None) or ""
-            raw_role = str(raw_role).lower()
+        """
+        Normalize LangChain/SQLChatMessageHistory entries to:
+        { "role": "user"|"assistant", "text": "...", "ts": "ISO8601" or None }
+        """
+        # try likely attributes
+        raw_type = getattr(m, "type", None) or getattr(m, "role", None) or getattr(m, "author", None) or ""
+        raw_text = getattr(m, "text", None) or getattr(m, "content", None) or getattr(m, "message", None) or ""
+        raw_ts = getattr(m, "ts", None)
 
-            # Normalize to ONLY these two:
-            #   - "user" for anything human
-            #   - "assistant" for anything ai/bot
-            if raw_role in ("human", "user", "client", "me"):
-                role = "user"
-            else:
-                role = "assistant"   # ai, system, tool, assistant → all bot side
+        role_str = str(raw_type).lower() if raw_type is not None else ""
 
-            text = getattr(m, "text", None) or getattr(m, "content", None) or ""
-            ts = getattr(m, "ts", None)
-            if hasattr(ts, "isoformat"):
-                ts = ts.isoformat()
+        if role_str in ("human", "user", "me", "self", "human_user", "client"):
+            role = "user"
+        else:
+            # treat ai/system/tool/assistant/any-other as assistant
+            role = "assistant"
 
-            return {"role": role, "text": text, "ts": ts}
+        # normalize timestamp to ISO string if datetime
+        if hasattr(raw_ts, "isoformat"):
+            ts = raw_ts.isoformat()
+        else:
+            ts = str(raw_ts) if raw_ts else None
+
+        return {"role": role, "text": str(raw_text), "ts": ts}
+
 
 
 
@@ -324,7 +333,7 @@ class RAGChatbot:
         #kb_context = self._retrieve_context(standalone_query)
 
         # 3. fetch recent DB context for this user
-        user_id = 1 # in real app, map session_id -> user_id
+        user_id = session_id # in real app, map session_id -> user_id
         latest_analysis_id = self._get_latest_analysis_id(user_id)
 
         db_context = ""
@@ -357,4 +366,4 @@ class RAGChatbot:
         history.add_ai_message(clean_answer)
         serialized = [self._serialize_message(m) for m in history.messages]
 
-        return {"answer": answer, "history": serialized}
+        return {"answer": clean_answer, "history": serialized}

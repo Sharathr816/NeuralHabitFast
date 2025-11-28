@@ -11,7 +11,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from db import SessionLocal, engine
 from models import Base, Journal, User, HabitAnalysis, HabitInteraction
-from schema import JournalIn
+from schema import JournalIn, JournalResponse
 from config_main import emotion_labels, entity_labels, emotion_model, entity_model, bert_tokenizer
 from config_main import  MODELS_DIR, MODEL_FILENAME, FEATURE_COLS_FILENAME, MODEL_DIR_REC    
 from Analysis.utils import NEL, PEL, Neutral_Emotions
@@ -252,126 +252,146 @@ def analyse_row(df_row: pd.DataFrame, raw_input: Dict[str, Any]) -> Dict[str, An
 #  Custom FM Layer (no KerasTensor errors)
 class FMLayer(Layer):
     def call(self, inputs):
-        """
-        inputs shape: (batch, num_fields, emb_dim)
-        """
-        summed = K.sum(inputs, axis=1)             # (batch, emb_dim)
-        summed_square = K.square(summed)
+        summed = tf.reduce_sum(inputs, axis=1)
+        summed_square = tf.square(summed)
+        squared = tf.square(inputs)
+        squared_sum = tf.reduce_sum(squared, axis=1)
+        return 0.5 * tf.reduce_sum(summed_square - squared_sum, axis=1, keepdims=True)
 
-        squared = K.square(inputs)
-        squared_sum = K.sum(squared, axis=1)
-
-        fm_output = 0.5 * K.sum(summed_square - squared_sum, axis=1, keepdims=True)
-        return fm_output
 
 PREPROC_PATH = os.path.join(MODEL_DIR_REC, "preproc.joblib")
-MODEL_PATH = os.path.join(MODEL_DIR_REC, "saved_model.keras")
-def load_model_and_preproc():
-    pre = joblib.load(PREPROC_PATH)
-    mdl = tf.keras.models.load_model(MODEL_PATH, custom_objects={"FMLayer": FMLayer})
-    return pre, mdl
+MODEL_PATH = os.path.join(MODEL_DIR_REC, "model.keras")
+_model = None
+_preproc = None
+def load_model_and_preproc_once():
+    global _model, _preproc
+    if _preproc is None or _model is None:
+        _preproc = joblib.load(PREPROC_PATH)
+        _model = tf.keras.models.load_model(MODEL_PATH, custom_objects={"FMLayer": FMLayer})
+    return _preproc, _model
 
-def normalize_recommended_state(val):
-    # training likely stored scalar strings. Handle lists robustly.
-    # if pd.isna(val):
-    #     return "unknown"
-    if isinstance(val, list):
-        return val[0] if len(val) > 0 else "unknown"   # PICK-FIRST heuristic
-    if isinstance(val, (set, tuple)):
-        return list(val)[0] if len(val) > 0 else "unknown"
-    if isinstance(val, dict):
-        return "unknown"
-    # if it's already a string like "stress|anxious", keep it
-    return str(val)
+# call on import/startup
+try:
+    _preproc, _model = load_model_and_preproc_once()
+    print("Loaded preproc and model at startup")
+except Exception as e:
+    print("Warning: failed to load model at startup:", e)
+    _preproc, _model = None, None
 
-def build_candidate_table_from_user(user_row: dict, habit_catalog: pd.DataFrame):
-    """
-    user_row: dict or single-row DataFrame containing user features:
-      risk_score,prediction,dominant_emotion,emotion_score,screen_time,unlocks,
-      sleep_hours,steps_last_24h (names must match preproc)
-    habit_catalog: DataFrame with habit columns:
-      habit_id,category,difficulty,time_min,dopamine_level,recommended_for_state,
-      indoor,required_device,popularity_prior
-    returns: df where user features are repeated for each habit
-    """
-    # convert user_row to DataFrame (1,row) if needed
+def safe_map_series(series, le):
+    """Map a Python series/list -> encoded int array using LabelEncoder `le`.
+       If value unseen, map to 'unknown' class index if present, else 0."""
+    classes = le.classes_
+    has_unknown = "unknown" in classes
+    out = []
+    # convert classes dtype to string for robust comparison
+    classes_set = set([str(x) for x in classes])
+    for v in series:
+        v_s = str(v)
+        if v_s in classes_set:
+            try:
+                out.append(int(le.transform([v_s])[0]))
+            except Exception:
+                out.append(0)
+        else:
+            if has_unknown:
+                out.append(int(np.where(classes == "unknown")[0][0]))
+            else:
+                out.append(0)
+    return np.array(out, dtype="int32")
+
+
+def build_candidates(user_row: dict, catalog_df: pd.DataFrame):
+    # repeated user row per habit (exactly like training)
     if isinstance(user_row, dict):
         df_user = pd.DataFrame([user_row])
     else:
         df_user = user_row.copy().reset_index(drop=True)
-    # normalize recommended_for_state in habit catalog and user if present
-    if "recommended_for_state" in habit_catalog.columns:
-        habit_catalog = habit_catalog.copy()
-        habit_catalog["recommended_for_state"] = habit_catalog["recommended_for_state"].apply(normalize_recommended_state)
-    # repeat user row for each habit
-    n = len(habit_catalog)
-    df_user_rep = pd.concat([df_user]*n, ignore_index=True)
-    # concat user features and habit features side-by-side
-    # ensure no column name collision: if both have same col (like 'date'/'user_id'), handle explicitly
-    df = pd.concat([df_user_rep.reset_index(drop=True), habit_catalog.reset_index(drop=True)], axis=1)
-    return df
+    df_user_rep = pd.concat([df_user] * len(catalog_df), ignore_index=True)
+    return pd.concat([df_user_rep.reset_index(drop=True), catalog_df.reset_index(drop=True)], axis=1)
 
-def preprocess_candidates(df, pre):
+
+def preprocess_inf(df_rows: pd.DataFrame, pre):
     encs = pre["encoders"]
-    scaler = pre["scaler"]
+    scaler = pre.get("scaler", None)
     cat_cols = pre["categorical_cols"]
     num_cols = pre["numeric_cols"]
 
-    df = df.copy()
+    dfp = df_rows.copy()
 
-    # categorical
+    # ensure expected cols exist
+    for c in cat_cols:
+        if c not in dfp.columns:
+            dfp[c] = "unknown"
+    for n in num_cols:
+        if n not in dfp.columns:
+            dfp[n] = 0.0
+
+    # categorical -> label encoded using training encoders
     for c in cat_cols:
         le = encs[c]
-        df[c] = df[c].astype(str).fillna("unknown")
-        # map using label encoder, unknown → first class
-        df[c] = df[c].apply(
-            lambda x: le.transform([x])[0] if x in le.classes_ else 0
-        )
+        # ensure string-typed, fillna
+        dfp[c] = dfp[c].astype(str).fillna("unknown")
+        dfp[c] = safe_map_series(dfp[c].tolist(), le)
 
-    # numeric
-    if num_cols:
+    # numeric -> scaler
+    if num_cols and scaler is not None:
         for c in num_cols:
-            df[c] = pd.to_numeric(df[c], errors="coerce").fillna(0.0)
-        df[num_cols] = scaler.transform(df[num_cols])
+            dfp[c] = pd.to_numeric(dfp[c], errors="coerce").fillna(0.0)
+        dfp[num_cols] = scaler.transform(dfp[num_cols])
 
     # convert to model inputs
     inp = {}
     for c in cat_cols:
-        inp[f"inp_{c}"] = df[c].values.astype("int32")
+        inp[f"inp_{c}"] = dfp[c].astype("int32").values
     if num_cols:
-        inp["numeric_input"] = df[num_cols].values.astype("float32")
+        inp["numeric_input"] = dfp[num_cols].astype("float32").values
 
-    return inp, df
+    return inp, dfp
 
-def recommend_for_user_snapshot(user_row, habit_catalog, top_positive=5):
-    """
-    user_row: dict or single-row DataFrame with user features (single snapshot)
-    habit_catalog: DataFrame with habit rows
-    returns: pos_df, neg_df containing habit_id and score
-    """
-    pre, mdl = load_model_and_preproc()
+
+
+def recommend_for_user_snapshot_live(user_row: dict, habit_catalog: pd.DataFrame, top_k: int = 5):
+    global _preproc, _model, _model_lock
+    if _preproc is None or _model is None:
+        raise RuntimeError("Model/preproc not loaded")
 
     # build candidate table
-    df_cand = build_candidate_table_from_user(user_row, habit_catalog)
+    df_cand = build_candidates(user_row, habit_catalog)
 
-    # preprocess whole candidate set
-    inp, df_proc = preprocess_candidates(df_cand, pre)
+    # preprocess inputs
+    inp, df_proc = preprocess_inf(df_cand, _preproc)
 
-    # predict scores
-    scores = mdl.predict(inp, batch_size=1024).ravel()
+    # model prediction
+    scores = _model.predict(inp, batch_size=512).ravel()
+
     df_proc["score"] = scores
 
-    # sort & return top/bottom
-    pos = df_proc.sort_values("score", ascending=False).head(top_positive)[["habit_id", "score"]].reset_index(drop=True)
-    # neg = df_proc.sort_values("score", ascending=True).head(top_negative)[["habit_id", "score"]].reset_index(drop=True)
-    return pos
-print("\nDeepFM training complete.")
+    # optionally combine heuristic score if catalog has it — small weight
+    if "heuristic_score" in df_proc.columns:
+        df_proc["score"] = df_proc["score"] + 0.12 * df_proc["heuristic_score"].fillna(0.0)
+
+    # sort and return decoded habit ids + metadata
+    df_sorted = df_proc.sort_values("score", ascending=False).reset_index(drop=True)
+
+    # decode habit_id original if encoder present
+    habit_le = _preproc["encoders"].get("habit_id", None)
+    if habit_le is not None:
+        # careful: habit_id currently numeric in catalog; the encoder maps strings used in training; cast accordingly
+        try:
+            df_sorted["habit_id_original"] = habit_le.inverse_transform(df_sorted["habit_id"].astype(int))
+        except Exception:
+            # fallback: if the encoder used string habit ids, try mapping as str
+            df_sorted["habit_id_original"] = df_sorted["habit_id"].astype(str)
+
+    # select top_k with extra fields for UI
+    out_df = df_sorted.head(top_k)[["habit_id_original", "score", "category", "difficulty", "time_min"]].copy()
+    return out_df
 
 
 
 
-
-# Background task
+#================ Background processing pipeline =================
 def process_journal_pipeline(user_id: int, journal_id: int, payload: JournalIn, ner_outputs, top5_labels, top5_probs):
     """Runs in background: build feature row, run analysis, save HabitAnalysis,
        call recommend_for_user_snapshot, save HabitInteraction records.
@@ -427,10 +447,11 @@ def process_journal_pipeline(user_id: int, journal_id: int, payload: JournalIn, 
         }
 
         # 4) Generate recommendations
-        catalog_path = os.path.join("Recommendation", "habit_catalog.json")
+        catalog_path = os.path.join("Recommendation", "habit_catalog_clean.json")
         habit_catalog = pd.read_json(catalog_path)
-        pos_df = recommend_for_user_snapshot(user_snapshot, habit_catalog, top_positive=5)
+        pos_df = recommend_for_user_snapshot_live(user_snapshot, habit_catalog, top_k=5)
         pos_list = pos_df.to_dict(orient="records")
+
 
         # 5) Save HabitInteraction for positive ones
         for item in pos_list:
@@ -438,12 +459,11 @@ def process_journal_pipeline(user_id: int, journal_id: int, payload: JournalIn, 
                 user_id=user_id,
                 journal_id=journal_id,
                 analysis_id=ha.analysis_id,
-                habit_id=int(item["habit_id"])
+                habit_id=int(item["habit_id_original"])
             )
             db.add(hi)
         db.commit()
 
-        
 
     except Exception as e:
         # log error; optionally store failure reason in DB
@@ -491,32 +511,29 @@ def login(payload: LoginPayload):
         db.close()
 
 
-@app.post("/journal-analyse")
+@app.post("/journal-analyse", response_model=JournalResponse)
 def analyse_journal(payload: JournalIn, background_tasks: BackgroundTasks):
-    # First extract emotional data and entities from the text
     text = payload.text
+
+    # run you NLP prediction logic (your snippet)
     inputs = bert_tokenizer(text, return_tensors="pt")
-    # Predict
     with torch.no_grad():
         bert_outputs = emotion_model(**inputs)
         ner_outputs = entity_model.predict_entities(text, entity_labels)
-        probs = torch.sigmoid(bert_outputs.logits).squeeze(0)  # Convert logits to probabilities using sigmoid function and squeeze to only one dim
-    # Get top 5 predictions(emotions)
-    top5_indices = torch.argsort(probs, descending=True)[:5]  # Get indices of top 5 labels
+        probs = torch.sigmoid(bert_outputs.logits).squeeze(0)
+
+    top5_indices = torch.argsort(probs, descending=True)[:5]
     top5_labels = [emotion_labels[i] for i in top5_indices]
-    top5_probs = [probs[i].item() for i in top5_indices] #convert probs to float
+    top5_probs = [probs[i].item() for i in top5_indices]
 
-    emotions = {}
-    for label, prob in zip(top5_labels, top5_probs):
-        emotions[label] = prob
+    emotions = {label: prob for label, prob in zip(top5_labels, top5_probs)}
 
-    #store in db
-    db = SessionLocal()
+    db: Session = SessionLocal()
     try:
         user = db.query(User).filter(User.user_id == payload.user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-        
+
         j = Journal(
             user_id=payload.user_id,
             text=payload.text,
@@ -524,23 +541,29 @@ def analyse_journal(payload: JournalIn, background_tasks: BackgroundTasks):
             unlock_count=payload.unlock_count,
             sleep_hours=payload.sleep_hours,
             steps=payload.steps,
-            dominant_emotion=top5_labels[0],
-            dominant_emotion_score=top5_probs[0],
+            dominant_emotion=top5_labels[0] if top5_labels else None,
+            dominant_emotion_score=top5_probs[0] if top5_probs else None,
         )
         db.add(j)
         db.commit()
         db.refresh(j)
         journal_id = j.journal_id
-
-  
     finally:
         db.close()
-    
-    # Launch background processing
-    # schedule the pipeline - won't block the response
-    background_tasks.add_task(process_journal_pipeline, payload.user_id, journal_id, payload, ner_outputs, top5_labels, top5_probs)
-    message = "Journal received and is being processed"
-    return {"message": message}
+
+    # schedule background processing without blocking
+    background_tasks.add_task(
+        process_journal_pipeline,
+        payload.user_id,
+        journal_id,
+        payload,
+        ner_outputs,
+        top5_labels,
+        top5_probs
+    )
+
+    return JournalResponse(message="Journal received and processing started, say hi to coach to see your recommended habits!", journal_id=journal_id)
+
 
 @app.get("/coach/ping")
 async def ping():
@@ -574,7 +597,8 @@ async def coach_history(session_id: str):
             text = getattr(m, "text", getattr(m, "content", ""))
             ts = getattr(m, "ts", None)
             serialized.append({"role": role, "text": text, "ts": ts})
-        return {"history": serialized}
+        return {"history": [ chatbot._serialize_message(m) for m in history.messages ]}
+
     except Exception as e:
         # logger.exception("Error in /coach/history")
         raise HTTPException(status_code=500, detail=str(e))
