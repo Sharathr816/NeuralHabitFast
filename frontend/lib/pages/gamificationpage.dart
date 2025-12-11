@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/gamification_stats.dart';
+import 'package:flutter_application_1/services/habit_service.dart';
 
 class GamificationPage extends StatefulWidget {
   const GamificationPage({super.key});
@@ -19,6 +20,13 @@ class _GamificationPageState extends State<GamificationPage> {
     super.initState();
     stats = gamificationStats;
     stats.addListener(_onStatsChanged);
+    // Sync initial stats from backend
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final server = await habitService.fetchStats();
+        gamificationStats.updateFromServer(server);
+      } catch (_) {}
+    });
   }
 
   void _onStatsChanged() {
@@ -42,7 +50,7 @@ class _GamificationPageState extends State<GamificationPage> {
           children: [
             Icon(Icons.stars, color: Colors.white),
             SizedBox(width: 8),
-            Text('Gamification'),
+            Text('Neural arsenal'),
           ],
         ),
         backgroundColor: Colors.teal,
@@ -133,11 +141,7 @@ class _GamificationPageState extends State<GamificationPage> {
                   color: Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.stars,
-                  color: Colors.white,
-                  size: 32,
-                ),
+                child: const Icon(Icons.stars, color: Colors.white, size: 32),
               ),
             ],
           ),
@@ -159,10 +163,7 @@ class _GamificationPageState extends State<GamificationPage> {
                   ),
                   Text(
                     '${stats.xpForNextLevel} XP to Level ${stats.currentLevel + 1}',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],
               ),
@@ -182,7 +183,10 @@ class _GamificationPageState extends State<GamificationPage> {
                       height: 20,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Colors.amber.shade400, Colors.amber.shade600],
+                          colors: [
+                            Colors.amber.shade400,
+                            Colors.amber.shade600,
+                          ],
                         ),
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
@@ -295,7 +299,10 @@ class _GamificationPageState extends State<GamificationPage> {
                         height: 30,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Colors.green.shade400, Colors.green.shade600],
+                            colors: [
+                              Colors.green.shade400,
+                              Colors.green.shade600,
+                            ],
                           ),
                           borderRadius: BorderRadius.circular(15),
                           boxShadow: [
@@ -325,7 +332,10 @@ class _GamificationPageState extends State<GamificationPage> {
               ),
               const SizedBox(width: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -411,7 +421,10 @@ class _GamificationPageState extends State<GamificationPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.cyan.shade700,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
@@ -430,20 +443,20 @@ class _GamificationPageState extends State<GamificationPage> {
 
   bool _canPlayGame() {
     if (stats.currentHP >= 100) return false;
-    return stats.canPlayMiniGameToday();
+    return stats.canPlayMiniGameForLevel();
   }
 
   String _getGameDescriptionText() {
     if (stats.currentHP >= 100) {
       return 'Your HP is maxed out! Keep it up or replay later when you need a boost.';
     }
-    
-    final remaining = stats.getRemainingGamePlaysToday();
+
+    final remaining = stats.getRemainingPlaysForLevel();
     if (remaining == 0) {
-      return 'You\'ve reached today\'s play limit (3/3). Come back tomorrow for more chances!';
+      return 'You\'ve reached the play limit for this level. Level up to unlock more plays.';
     }
-    
-    return 'Pick the glowing potion to earn an instant +20 HP boost. You can only gain health up to 100 HP.\n\nRemaining plays today: $remaining/3';
+
+    return 'Pick the glowing potion to earn an instant +10 HP boost. You can only gain health up to 100 HP.\n\nRemaining plays for this level: $remaining/3';
   }
 
   String _getGameButtonText() {
@@ -458,11 +471,15 @@ class _GamificationPageState extends State<GamificationPage> {
 
   Future<void> _startHealthMiniGame() async {
     // Check again before starting (in case state changed)
-    if (!stats.canPlayMiniGameToday()) {
+    if (!_canPlayGame()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You\'ve reached today\'s play limit (3/3). Come back tomorrow!'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(
+            stats.currentHP >= 100
+                ? 'Your HP is full.'
+                : 'Mini-game play limit reached for this level.',
+          ),
+          duration: const Duration(seconds: 2),
         ),
       );
       return;
@@ -471,8 +488,34 @@ class _GamificationPageState extends State<GamificationPage> {
     final _HealthGameResult? result = await _showHealthMiniGameDialog();
     if (!mounted || result == null) return;
 
-    // Record the game play (regardless of win/loss)
-    stats.recordMiniGamePlay();
+    // Record the game play on the server (includes whether the user won) and refresh stats
+    try {
+      final serverResp = await habitService.playHealthPotion(won: result.won);
+      gamificationStats.updateFromServer(serverResp);
+    } catch (_) {
+      // Offline: do NOT record a local play count (to avoid enabling replay after reload).
+      // Apply local HP award so user gets immediate feedback, but server must confirm plays.
+      if (result.won) {
+        final local = stats.awardHealth(10);
+        if (local.hpDelta > 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'You found a potion! +${local.hpDelta} HP (local, offline)',
+              ),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Played offline; result will sync when online'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    }
 
     if (result.message.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -489,7 +532,7 @@ class _GamificationPageState extends State<GamificationPage> {
     int? selectedIndex;
     bool hasPlayed = false;
     String statusMessage = 'Pick a potion to discover a healing elixir!';
-    GamificationChange selectedChange = const GamificationChange();
+    // no local HP mutation here; server will apply +10 HP on win
 
     return showDialog<_HealthGameResult?>(
       context: context,
@@ -504,15 +547,11 @@ class _GamificationPageState extends State<GamificationPage> {
               final bool isWinner = index == winningIndex;
 
               if (isWinner) {
-                selectedChange = stats.awardHealth(20);
-                if (selectedChange.hpDelta > 0) {
-                  statusMessage = 'You found a healing potion! HP +${selectedChange.hpDelta}.';
-                } else {
-                  statusMessage = 'Potion found, but your HP is already full!';
-                }
+                // mark win locally for UI; server will award +10 HP when play is submitted
+                statusMessage =
+                    'You found a healing potion! Claim +10 HP when you submit.';
               } else {
-                statusMessage = 'That potion was empty. Try again tomorrow!';
-                selectedChange = const GamificationChange();
+                statusMessage = 'That potion was empty. Better luck next time!';
               }
 
               hasPlayed = true;
@@ -596,7 +635,9 @@ class _GamificationPageState extends State<GamificationPage> {
                     Navigator.of(dialogContext).pop(
                       hasPlayed
                           ? _HealthGameResult(
-                              change: selectedChange,
+                              won:
+                                  selectedIndex != null &&
+                                  selectedIndex == winningIndex,
                               message: statusMessage,
                             )
                           : null,
@@ -688,17 +729,11 @@ class _GamificationPageState extends State<GamificationPage> {
           const SizedBox(height: 4),
           Text(
             title,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
           ),
           Text(
             subtitle,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 10,
-            ),
+            style: const TextStyle(color: Colors.white70, fontSize: 10),
           ),
         ],
       ),
@@ -744,10 +779,7 @@ class _GamificationPageState extends State<GamificationPage> {
               children: [
                 const Text(
                   'Current Streak',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
                 Text(
                   '${stats.currentStreak} days',
@@ -760,10 +792,7 @@ class _GamificationPageState extends State<GamificationPage> {
                 const SizedBox(height: 4),
                 const Text(
                   'Keep it up! 🔥',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
                 ),
               ],
             ),
@@ -913,25 +942,26 @@ class _GamificationPageState extends State<GamificationPage> {
     required IconData icon,
   }) {
     final bool unlocked = stats.currentStreak >= days;
-    final bool isNextGoal = stats.currentStreak < days && 
-                           (stats.currentStreak >= days - 7 || 
-                            (days <= 7 && stats.currentStreak > 0));
+    final bool isNextGoal =
+        stats.currentStreak < days &&
+        (stats.currentStreak >= days - 7 ||
+            (days <= 7 && stats.currentStreak > 0));
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: unlocked 
+        color: unlocked
             ? color.withOpacity(0.2)
             : isNextGoal
-                ? Colors.grey.shade100
-                : Colors.grey[200],
+            ? Colors.grey.shade100
+            : Colors.grey[200],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: unlocked 
+          color: unlocked
               ? color
               : isNextGoal
-                  ? Colors.orange.shade300
-                  : Colors.grey[300]!,
+              ? Colors.orange.shade300
+              : Colors.grey[300]!,
           width: unlocked ? 3 : (isNextGoal ? 2 : 1),
         ),
         boxShadow: unlocked
@@ -951,17 +981,9 @@ class _GamificationPageState extends State<GamificationPage> {
             alignment: Alignment.center,
             children: [
               if (unlocked)
-                Icon(
-                  icon,
-                  color: color,
-                  size: 40,
-                )
+                Icon(icon, color: color, size: 40)
               else
-                Icon(
-                  icon,
-                  color: Colors.grey[400],
-                  size: 40,
-                ),
+                Icon(icon, color: Colors.grey[400], size: 40),
               if (unlocked)
                 Positioned(
                   top: 0,
@@ -985,8 +1007,8 @@ class _GamificationPageState extends State<GamificationPage> {
           Text(
             title,
             style: TextStyle(
-              color: unlocked 
-                  ? (color is MaterialColor ? color.shade700 : color) 
+              color: unlocked
+                  ? (color is MaterialColor ? color.shade700 : color)
                   : Colors.grey[600],
               fontSize: 13,
               fontWeight: unlocked ? FontWeight.bold : FontWeight.normal,
@@ -997,8 +1019,10 @@ class _GamificationPageState extends State<GamificationPage> {
           Text(
             description,
             style: TextStyle(
-              color: unlocked 
-                  ? (color is MaterialColor ? color.shade600 : color.withOpacity(0.8)) 
+              color: unlocked
+                  ? (color is MaterialColor
+                        ? color.shade600
+                        : color.withOpacity(0.8))
                   : Colors.grey[500],
               fontSize: 10,
             ),
@@ -1026,62 +1050,11 @@ class _GamificationPageState extends State<GamificationPage> {
       ),
     );
   }
-
-  Widget _buildAchievementBadge({
-    required IconData icon,
-    required String title,
-    required bool unlocked,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: unlocked ? color : Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: unlocked ? color : Colors.grey[300]!,
-          width: unlocked ? 2 : 1,
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: unlocked ? color : Colors.grey[400],
-            size: 32,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: TextStyle(
-              color: unlocked ? color : Colors.grey[600],
-
-              fontSize: 12,
-              fontWeight: unlocked ? FontWeight.bold : FontWeight.normal,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          if (unlocked) ...[
-            const SizedBox(height: 4),
-            Icon(
-              Icons.check_circle,
-              color: color,
-              size: 16,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
 }
 
 class _HealthGameResult {
-  final GamificationChange change;
+  final bool won;
   final String message;
 
-  const _HealthGameResult({
-    required this.change,
-    required this.message,
-  });
+  const _HealthGameResult({required this.won, required this.message});
 }

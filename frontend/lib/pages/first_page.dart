@@ -4,6 +4,7 @@ import 'package:flutter_application_1/pages/gamificationpage.dart';
 import 'package:flutter_application_1/pages/journal.dart';
 import 'package:flutter_application_1/pages/ai_assistant.dart';
 import 'package:flutter_application_1/services/auth_service.dart';
+import 'package:flutter_application_1/services/habit_service.dart';
 import 'package:flutter_application_1/state/user_session.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -31,20 +32,11 @@ class _FirstPageState extends State<FirstPage> {
   // Track tasks that have already been penalized for missed deadlines
   final Set<String> _penalizedTasks = {};
 
-  // Your habits list, all unchecked initially
-  // Classified as positive (green) or negative (red) habits
-  final List<_Habit> _habits = [
-    _Habit(title: "Morning meditation", category: "Mind", days: 7, completed: false, isPositive: true),
-    _Habit(title: "Drink water", category: "Health", days: 21, completed: false, isPositive: true),
-    _Habit(title: "10,000 steps", category: "Fitness", days: 3, completed: false, isPositive: true),
-    _Habit(title: "Reading", category: "Learning", days: 12, completed: false, isPositive: true),
-    _Habit(title: "Evening reflection", category: "Mind", days: 5, completed: false, isPositive: true),
-    _Habit(title: "Stretching", category: "Fitness", days: 0, completed: false, isPositive: true),
-    _Habit(title: "Smoking", category: "Health", days: 2, completed: false, isPositive: false),
-    _Habit(title: "Late night snacking", category: "Health", days: 5, completed: false, isPositive: false),
-  ];
+  // Habits will be loaded from the backend for the current user
+  final List<_Habit> _habits = [];
 
   final AuthService _authService = AuthService();
+  final habitService = HabitService();
 
   @override
   void initState() {
@@ -55,7 +47,91 @@ class _FirstPageState extends State<FirstPage> {
       gamificationStats.updateLoginStreak();
       _checkDailyBonus();
       _checkMissedTaskDeadlines();
+      _loadInitialData();
     });
+  }
+
+  Future<void> _loadInitialData() async {
+    try {
+      // Load habits
+      final rawHabits = await habitService.fetchHabits();
+      final List<_Habit> loaded = [];
+      for (final h in rawHabits) {
+        try {
+          final map = h as Map<String, dynamic>;
+          loaded.add(
+            _Habit(
+              id: map['id'] is int
+                  ? map['id'] as int
+                  : (map['habit_id'] is int ? map['habit_id'] as int : null),
+              title:
+                  map['habit_name']?.toString() ??
+                  map['title']?.toString() ??
+                  'Habit',
+              category: map['category']?.toString() ?? 'Other',
+              days: (map['number_of_days'] is num)
+                  ? (map['number_of_days'] as num).toInt()
+                  : 0,
+              completed: map['is_checked'] == true || map['checked'] == true,
+              isPositive:
+                  (map['habit_type']?.toString() ?? 'positive') == 'positive',
+            ),
+          );
+        } catch (_) {}
+      }
+
+      // Load stats and sync
+      try {
+        final stats = await habitService.fetchStats();
+        gamificationStats.updateFromServer(stats);
+      } catch (_) {}
+
+      // Load tasks from backend and map into calendar by normalized date
+      try {
+        final rawTasks = await habitService.fetchTasks();
+        final Map<DateTime, List<_CalendarTask>> loadedTasks = {};
+        for (final t in rawTasks) {
+          try {
+            final map = t as Map<String, dynamic>;
+            final String? dl = map['deadline']?.toString();
+            DateTime? deadline;
+            if (dl != null && dl.isNotEmpty) {
+              try {
+                deadline = DateTime.parse(dl).toLocal();
+              } catch (_) {
+                deadline = null;
+              }
+            }
+            final DateTime key = deadline != null
+                ? _normalizeDate(deadline)
+                : _normalizeDate(DateTime.now());
+            final task = _CalendarTask(
+              id: map['id'] is int
+                  ? map['id'] as int
+                  : (map['task_id'] is int ? map['task_id'] as int : null),
+              title: map['title']?.toString() ?? 'Task',
+              deadline: deadline,
+              completed: map['completed'] == true,
+            );
+            loadedTasks.putIfAbsent(key, () => []).add(task);
+          } catch (_) {}
+        }
+
+        setState(() {
+          _tasksByDate.clear();
+          _tasksByDate.addAll(loadedTasks);
+        });
+      } catch (_) {
+        // ignore task load errors
+      }
+
+      setState(() {
+        _habits.clear();
+        _habits.addAll(loaded);
+      });
+    } catch (_) {
+      // ignore load errors for now
+    }
   }
 
   void _checkMissedTaskDeadlines() {
@@ -65,17 +141,20 @@ class _FirstPageState extends State<FirstPage> {
     // Check all tasks across all dates
     _tasksByDate.forEach((date, tasks) {
       for (final task in tasks) {
-        if (!task.completed && task.deadline != null && now.isAfter(task.deadline!)) {
+        if (!task.completed &&
+            task.deadline != null &&
+            now.isAfter(task.deadline!)) {
           // Create unique key for this task (date + title + deadline)
-          final String taskKey = '${_normalizeDate(date).toString()}_${task.title}_${task.deadline!.toString()}';
-          
+          final String taskKey =
+              '${_normalizeDate(date).toString()}_${task.title}_${task.deadline!.toString()}';
+
           // Check if this task has already been penalized
           if (!_penalizedTasks.contains(taskKey)) {
             missedTasks.add(task.title);
-            
+
             // Apply HP penalty
             gamificationStats.penalizeMissedTask();
-            
+
             // Mark this task as penalized to prevent repeated penalties
             _penalizedTasks.add(taskKey);
           }
@@ -112,7 +191,7 @@ class _FirstPageState extends State<FirstPage> {
       );
     }
   }
-  
+
   // Get filtered habits with their original indices
   List<MapEntry<int, _Habit>> get _filteredHabitsWithIndices {
     if (_selectedFilter == "All") {
@@ -124,13 +203,14 @@ class _FirstPageState extends State<FirstPage> {
         .where((entry) => entry.value.category == _selectedFilter)
         .toList();
   }
-  
+
   // Get filtered habits list (for completion percentage calculation)
   List<_Habit> get _filteredHabits {
     return _filteredHabitsWithIndices.map((entry) => entry.value).toList();
   }
 
-  DateTime _normalizeDate(DateTime date) => DateTime(date.year, date.month, date.day);
+  DateTime _normalizeDate(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
 
   List<_CalendarTask> _getTasksForDay(DateTime day) {
     return _tasksByDate[_normalizeDate(day)] ?? [];
@@ -186,7 +266,7 @@ class _FirstPageState extends State<FirstPage> {
       'Sep',
       'Oct',
       'Nov',
-      'Dec'
+      'Dec',
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
@@ -201,14 +281,11 @@ class _FirstPageState extends State<FirstPage> {
 
   // Changed _pages from fixed list to getter for rebuilding on setState
   List<Widget> get _pages => [
-        _buildMainDashboard(),
-        AiAssistant(),
-        JournalPage(
-          controller: _controller,
-          onCancel: () {},
-        ),
-        GamificationPage(),
-      ];
+    _buildMainDashboard(),
+    AiAssistant(),
+    JournalPage(controller: _controller, onCancel: () {}),
+    GamificationPage(),
+  ];
 
   void _navigateBottomBar(int index) {
     setState(() {
@@ -292,19 +369,23 @@ class _FirstPageState extends State<FirstPage> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _hoverableCard(_buildCard(
-                  title: "AI Insights",
-                  content:
-                      "Your morning meditation habit is showing great consistency. Consider adding an evening session for better sleep quality.",
-                  footer: "See more insights",
-                  icon: Icons.insights,
-                )),
-                _hoverableCard(_buildCard(
-                  title: "Streak & XP",
-                  content: "Current Streak\n12 days\n\nTotal XP\n750 XP",
-                  footer: "230 XP until next level",
-                  icon: Icons.local_fire_department,
-                )),
+                _hoverableCard(
+                  _buildCard(
+                    title: "AI Insights",
+                    content:
+                        "Your morning meditation habit is showing great consistency. Consider adding an evening session for better sleep quality.",
+                    footer: "See more insights",
+                    icon: Icons.insights,
+                  ),
+                ),
+                _hoverableCard(
+                  _buildCard(
+                    title: "Streak & XP",
+                    content: "Current Streak\n0 days\n\nTotal XP\n750 XP",
+                    footer: "200 XP until next level",
+                    icon: Icons.local_fire_department,
+                  ),
+                ),
                 _hoverableCard(_buildWeeklyProgress()),
               ],
             ),
@@ -339,12 +420,20 @@ class _FirstPageState extends State<FirstPage> {
         children: [
           Icon(icon, color: Colors.teal, size: 24),
           const SizedBox(height: 12),
-          Text(title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
-          Text(content, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+          Text(
+            content,
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
+          ),
           const SizedBox(height: 12),
-          Text(footer, style: const TextStyle(fontSize: 12, color: Colors.teal)),
+          Text(
+            footer,
+            style: const TextStyle(fontSize: 12, color: Colors.teal),
+          ),
         ],
       ),
     );
@@ -354,37 +443,38 @@ class _FirstPageState extends State<FirstPage> {
     // Get current date and normalize to midnight for accurate comparison
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    
+
     // Calculate days to subtract to get to Monday (weekday: 1=Monday, 7=Sunday)
     // If today is Monday (weekday=1), subtract 0 days
     // If today is Tuesday (weekday=2), subtract 1 day
     // etc.
     final daysToMonday = (today.weekday - 1) % 7;
-    
+
     // Get the start of the week (Monday) using DateTime arithmetic
     final startOfWeek = today.subtract(Duration(days: daysToMonday));
-    
+
     // Generate week days starting from Monday
     final List<DateTime> weekDays = List.generate(7, (index) {
       return startOfWeek.add(Duration(days: index));
     });
-    
+
     // Day abbreviations
     const dayAbbreviations = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-    
+
     // Find today's index in the week (should always be 0-6)
-    final todayIndex = weekDays.indexWhere((date) => 
-      date.year == today.year && 
-      date.month == today.month && 
-      date.day == today.day
+    final todayIndex = weekDays.indexWhere(
+      (date) =>
+          date.year == today.year &&
+          date.month == today.month &&
+          date.day == today.day,
     );
-    
+
     // Calculate completed days (days from Monday up to and including today)
     // If today is Monday, completedDays = 1
     // If today is Tuesday, completedDays = 2
     // etc.
     final int completedDays = todayIndex >= 0 ? todayIndex + 1 : 0;
-    
+
     // Calculate progress (percentage of week completed)
     final progress = completedDays / 7;
 
@@ -403,8 +493,10 @@ class _FirstPageState extends State<FirstPage> {
         children: [
           const Icon(Icons.bar_chart, color: Colors.teal),
           const SizedBox(height: 12),
-          const Text("Weekly Progress",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text(
+            "Weekly Progress",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           LinearProgressIndicator(
             value: progress,
@@ -419,8 +511,7 @@ class _FirstPageState extends State<FirstPage> {
               final date = entry.value;
               final isToday = todayIndex == index;
               final isPast = index < completedDays;
-              final isFuture = index >= completedDays;
-              
+
               return Container(
                 key: ValueKey(date),
                 child: Column(
@@ -430,14 +521,16 @@ class _FirstPageState extends State<FirstPage> {
                       backgroundColor: isToday
                           ? Colors.orange
                           : isPast
-                              ? Colors.teal
-                              : Colors.grey[400],
+                          ? Colors.teal
+                          : Colors.grey[400],
                       child: Text(
                         dayAbbreviations[index],
                         style: TextStyle(
                           fontSize: isToday ? 11 : 10,
                           color: Colors.white,
-                          fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isToday
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
                     ),
@@ -460,10 +553,7 @@ class _FirstPageState extends State<FirstPage> {
           const SizedBox(height: 4),
           Text(
             '$completedDays of 7 days completed',
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 11, color: Colors.grey[600]),
           ),
         ],
       ),
@@ -472,17 +562,21 @@ class _FirstPageState extends State<FirstPage> {
 
   Widget _buildHabitsSection() {
     final filteredHabits = _filteredHabits;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Text("Today's Habits",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Text(
+              "Today's Habits",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const Spacer(),
-            Text("${_calculateCompletionPercentage()}% Complete",
-                style: const TextStyle(color: Colors.teal, fontSize: 14)),
+            Text(
+              "${_calculateCompletionPercentage()}% Complete",
+              style: const TextStyle(color: Colors.teal, fontSize: 14),
+            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -509,9 +603,9 @@ class _FirstPageState extends State<FirstPage> {
             ),
           )
         else
-          ..._filteredHabitsWithIndices
-              .map((entry) => _buildHabitTile(entry.key, entry.value))
-              ,
+          ..._filteredHabitsWithIndices.map(
+            (entry) => _buildHabitTile(entry.key, entry.value),
+          ),
         const SizedBox(height: 12),
         // Action buttons row
         Row(
@@ -573,7 +667,7 @@ class _FirstPageState extends State<FirstPage> {
     int completedCount = filteredHabits.where((h) => h.completed).length;
     return ((completedCount / filteredHabits.length) * 100).round();
   }
-  
+
   Widget _buildFilterChip(String category) {
     final isSelected = _selectedFilter == category;
     return FilterChip(
@@ -606,17 +700,17 @@ class _FirstPageState extends State<FirstPage> {
   Widget _buildHabitTile(int index, _Habit habit) {
     final isSelected = _selectedHabitsForDeletion.contains(index);
     final isDeleteMode = _isDeleteMode;
-    
+
     // Determine colors based on habit type (positive = green, negative = red)
     final Color habitColor = habit.isPositive ? Colors.green : Colors.red;
-    final Color habitLightColor = habit.isPositive 
-        ? Colors.green.shade50 
+    final Color habitLightColor = habit.isPositive
+        ? Colors.green.shade50
         : Colors.red.shade50;
-    final Color habitBorderColor = habit.isPositive 
-        ? Colors.green.shade300 
+    final Color habitBorderColor = habit.isPositive
+        ? Colors.green.shade300
         : Colors.red.shade300;
-    final Color habitDarkColor = habit.isPositive 
-        ? Colors.green.shade700 
+    final Color habitDarkColor = habit.isPositive
+        ? Colors.green.shade700
         : Colors.red.shade700;
 
     return Container(
@@ -626,19 +720,19 @@ class _FirstPageState extends State<FirstPage> {
         color: isSelected && isDeleteMode
             ? Colors.red.shade50
             : habit.completed
-                ? habitLightColor
-                : Colors.white,
+            ? habitLightColor
+            : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected && isDeleteMode
               ? Colors.red
               : habit.completed
-                  ? habitColor
-                  : habitBorderColor,
+              ? habitColor
+              : habitBorderColor,
           width: isSelected && isDeleteMode ? 2 : (habit.completed ? 2 : 1),
         ),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1))
+          BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1)),
         ],
       ),
       child: Row(
@@ -662,7 +756,7 @@ class _FirstPageState extends State<FirstPage> {
             Checkbox(
               value: habit.completed,
               activeColor: habitColor,
-              onChanged: (bool? value) {
+              onChanged: (bool? value) async {
                 final bool newValue = value ?? false;
                 final bool wasCompleted = habit.completed;
 
@@ -726,6 +820,15 @@ class _FirstPageState extends State<FirstPage> {
                     duration: const Duration(seconds: 1),
                   ),
                 );
+                // Sync change with backend if we have an id
+                if (habit.id != null) {
+                  try {
+                    final resp = await habitService.checkHabit(habit.id!);
+                    gamificationStats.updateFromServer(resp);
+                  } catch (_) {
+                    // ignore network errors for now
+                  }
+                }
               },
             ),
           const SizedBox(width: 12),
@@ -752,8 +855,8 @@ class _FirstPageState extends State<FirstPage> {
                             color: isSelected && isDeleteMode
                                 ? Colors.red.shade900
                                 : habit.completed
-                                    ? habitDarkColor
-                                    : Colors.black,
+                                ? habitDarkColor
+                                : Colors.black,
                           ),
                         ),
                       ),
@@ -768,14 +871,17 @@ class _FirstPageState extends State<FirstPage> {
                     color: isSelected && isDeleteMode
                         ? Colors.red.shade700
                         : habit.completed
-                            ? habitDarkColor.withOpacity(0.7)
-                            : Colors.grey,
+                        ? habitDarkColor.withOpacity(0.7)
+                        : Colors.grey,
                   ),
                 ),
                 // Habit type label
                 const SizedBox(height: 2),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: habitColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
@@ -798,8 +904,8 @@ class _FirstPageState extends State<FirstPage> {
           ),
           if (habit.completed && !isDeleteMode)
             Icon(
-              habit.isPositive 
-                  ? Icons.local_fire_department 
+              habit.isPositive
+                  ? Icons.local_fire_department
                   : Icons.check_circle,
               color: habit.isPositive ? Colors.orange : habitColor,
             ),
@@ -831,7 +937,6 @@ class _FirstPageState extends State<FirstPage> {
       return;
     }
 
-    // Show confirmation dialog
     showDialog(
       context: context,
       builder: (context) {
@@ -846,34 +951,50 @@ class _FirstPageState extends State<FirstPage> {
               child: const Text("Cancel"),
             ),
             ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  // Sort indices in descending order to avoid index shifting issues
-                  final sortedIndices = _selectedHabitsForDeletion.toList()
-                    ..sort((a, b) => b.compareTo(a));
-                  
-                  // Remove habits from highest index to lowest
-                  for (final index in sortedIndices) {
-                    if (index >= 0 && index < _habits.length) {
-                      _habits.removeAt(index);
+              onPressed: () async {
+                // Attempt server-side delete for each selected habit that has an id.
+                final sortedIndices = _selectedHabitsForDeletion.toList()
+                  ..sort((a, b) => b.compareTo(a));
+                bool anyFailures = false;
+                for (final index in sortedIndices) {
+                  if (index < 0 || index >= _habits.length) continue;
+                  final h = _habits[index];
+                  if (h.id != null) {
+                    try {
+                      await habitService.deleteHabit(h.id!);
+                      // on success remove locally
+                      setState(() {
+                        _habits.removeAt(index);
+                      });
+                    } catch (e) {
+                      anyFailures = true;
                     }
+                  } else {
+                    // local-only habit: just remove
+                    setState(() {
+                      _habits.removeAt(index);
+                    });
                   }
-                  
-                  // Clear selections and exit delete mode
+                }
+
+                setState(() {
                   _selectedHabitsForDeletion.clear();
                   _isDeleteMode = false;
                 });
+
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Habits deleted successfully"),
-                    duration: Duration(seconds: 2),
+                  SnackBar(
+                    content: Text(
+                      anyFailures
+                          ? 'Some deletes failed (offline)'
+                          : 'Habits deleted successfully',
+                    ),
+                    duration: const Duration(seconds: 2),
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               child: const Text(
                 "Delete",
                 style: TextStyle(color: Colors.white),
@@ -887,7 +1008,9 @@ class _FirstPageState extends State<FirstPage> {
 
   void _showAddHabitDialog() {
     final TextEditingController habitTitleController = TextEditingController();
-    final TextEditingController daysController = TextEditingController(text: "0");
+    final TextEditingController daysController = TextEditingController(
+      text: "0",
+    );
     String selectedCategory = "Mind";
     bool isPositiveHabit = true; // Default to positive habit
 
@@ -915,9 +1038,18 @@ class _FirstPageState extends State<FirstPage> {
                       initialValue: selectedCategory,
                       items: const [
                         DropdownMenuItem(value: "Mind", child: Text("Mind")),
-                        DropdownMenuItem(value: "Fitness", child: Text("Fitness")),
-                        DropdownMenuItem(value: "Learning", child: Text("Learning")),
-                        DropdownMenuItem(value: "Health", child: Text("Health")),
+                        DropdownMenuItem(
+                          value: "Fitness",
+                          child: Text("Fitness"),
+                        ),
+                        DropdownMenuItem(
+                          value: "Learning",
+                          child: Text("Learning"),
+                        ),
+                        DropdownMenuItem(
+                          value: "Health",
+                          child: Text("Health"),
+                        ),
                         DropdownMenuItem(value: "Other", child: Text("Other")),
                       ],
                       onChanged: (value) {
@@ -925,9 +1057,7 @@ class _FirstPageState extends State<FirstPage> {
                           selectedCategory = value!;
                         });
                       },
-                      decoration: const InputDecoration(
-                        labelText: "Category",
-                      ),
+                      decoration: const InputDecoration(labelText: "Category"),
                     ),
                     const SizedBox(height: 16),
                     TextField(
@@ -936,7 +1066,8 @@ class _FirstPageState extends State<FirstPage> {
                       decoration: const InputDecoration(
                         labelText: "Number of Days",
                         hintText: "Enter number of days",
-                        helperText: "How many days have you maintained this habit?",
+                        helperText:
+                            "How many days have you maintained this habit?",
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -1061,15 +1192,17 @@ class _FirstPageState extends State<FirstPage> {
               child: const Text("Cancel"),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 final newTitle = habitTitleController.text.trim();
                 if (newTitle.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Habit title can't be empty!")),
+                    const SnackBar(
+                      content: Text("Habit title can't be empty!"),
+                    ),
                   );
                   return;
                 }
-                
+
                 // Parse and validate number of days
                 final daysText = daysController.text.trim();
                 int days = 0;
@@ -1078,23 +1211,47 @@ class _FirstPageState extends State<FirstPage> {
                   if (parsedDays == null || parsedDays < 0) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("Please enter a valid number of days (0 or greater)"),
+                        content: Text(
+                          "Please enter a valid number of days (0 or greater)",
+                        ),
                       ),
                     );
                     return;
                   }
                   days = parsedDays;
                 }
-                
-                setState(() {
-                  _habits.add(_Habit(
+
+                try {
+                  final created = await habitService.createHabit(
                     title: newTitle,
                     category: selectedCategory,
                     days: days,
-                    completed: false,
                     isPositive: isPositiveHabit,
-                  ));
-                });
+                  );
+
+                  setState(() {
+                    _habits.add(
+                      _Habit(
+                        id: (created['id'] is int)
+                            ? created['id'] as int
+                            : (created['habit_id'] is int
+                                  ? created['habit_id'] as int
+                                  : null),
+                        title: newTitle,
+                        category: selectedCategory,
+                        days: days,
+                        completed: false,
+                        isPositive: isPositiveHabit,
+                      ),
+                    );
+                  });
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to create habit (network)'),
+                    ),
+                  );
+                }
                 Navigator.of(context).pop();
               },
               child: const Text("Add"),
@@ -1132,16 +1289,15 @@ class _FirstPageState extends State<FirstPage> {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Colors.teal,
-              ),
+              decoration: const BoxDecoration(color: Colors.teal),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const CircleAvatar(
                     radius: 32,
                     backgroundImage: NetworkImage(
-                        'https://randomuser.me/api/portraits/women/44.jpg'),
+                      'https://randomuser.me/api/portraits/women/44.jpg',
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -1188,9 +1344,15 @@ class _FirstPageState extends State<FirstPage> {
         unselectedItemColor: Colors.white54,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.smart_toy), label: 'AI Assistant'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.smart_toy),
+            label: 'AI Assistant',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Journal'),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Gamification'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.star),
+            label: 'Gamification',
+          ),
         ],
       ),
     );
@@ -1207,11 +1369,7 @@ class _FirstPageState extends State<FirstPage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 4),
-          ),
+          BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
         ],
       ),
       child: Column(
@@ -1225,8 +1383,8 @@ class _FirstPageState extends State<FirstPage> {
                 child: Text(
                   'Habit Calendar & To-Do',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               Text(
@@ -1302,22 +1460,20 @@ class _FirstPageState extends State<FirstPage> {
           _buildProgressCard(progressEntry),
           const SizedBox(height: 16),
           Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    const Text(
-      'Tasks & Deadlines',
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    TextButton.icon(
-      onPressed: _showAddCalendarTaskDialog, // ✅ make sure this method exists
-      icon: const Icon(Icons.add),
-      label: const Text('Add Task'),
-    ),
-  ],
-),
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Tasks & Deadlines',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              TextButton.icon(
+                onPressed:
+                    _showAddCalendarTaskDialog, // ✅ make sure this method exists
+                icon: const Icon(Icons.add),
+                label: const Text('Add Task'),
+              ),
+            ],
+          ),
 
           selectedTasks.isEmpty
               ? Container(
@@ -1343,7 +1499,8 @@ class _FirstPageState extends State<FirstPage> {
                       child: ListTile(
                         leading: Checkbox(
                           value: task.completed,
-                          onChanged: (_) => _toggleTaskCompleted(_selectedDay, index),
+                          onChanged: (_) =>
+                              _toggleTaskCompleted(_selectedDay, index),
                         ),
                         title: Text(
                           task.title,
@@ -1403,11 +1560,7 @@ class _FirstPageState extends State<FirstPage> {
         color: Colors.teal.shade600,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 3),
-          ),
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
         ],
       ),
       child: Row(
@@ -1519,30 +1672,72 @@ class _FirstPageState extends State<FirstPage> {
                   );
                   return;
                 }
+                (() async {
+                  final DateTime normalized = _normalizeDate(_selectedDay);
+                  final DateTime? deadline = selectedTime != null
+                      ? DateTime(
+                          normalized.year,
+                          normalized.month,
+                          normalized.day,
+                          selectedTime!.hour,
+                          selectedTime!.minute,
+                        )
+                      : null;
 
-                final DateTime normalized = _normalizeDate(_selectedDay);
-                final tasks = List<_CalendarTask>.from(_getTasksForDay(normalized))
-                  ..add(
-                    _CalendarTask(
+                  try {
+                    final created = await habitService.createTask(
                       title: title,
-                      deadline: selectedTime != null
-                          ? DateTime(
-                              normalized.year,
-                              normalized.month,
-                              normalized.day,
-                              selectedTime!.hour,
-                              selectedTime!.minute,
-                            )
-                          : null,
-                      completed: false,
-                    ),
-                  );
+                      deadline: deadline,
+                    );
 
-                setState(() {
-                  _setTasksForDay(normalized, tasks);
-                });
+                    final int? tid = (created['id'] is int)
+                        ? created['id'] as int
+                        : (created['task_id'] is int
+                              ? created['task_id'] as int
+                              : null);
 
-                Navigator.of(context).pop();
+                    final tasks =
+                        List<_CalendarTask>.from(_getTasksForDay(normalized))
+                          ..add(
+                            _CalendarTask(
+                              id: tid,
+                              title: title,
+                              deadline: deadline,
+                              completed: false,
+                            ),
+                          );
+
+                    setState(() {
+                      _setTasksForDay(normalized, tasks);
+                    });
+                  } catch (e) {
+                    // fallback to local-only add on failure
+                    final tasks =
+                        List<_CalendarTask>.from(_getTasksForDay(_selectedDay))
+                          ..add(
+                            _CalendarTask(
+                              id: null,
+                              title: title,
+                              deadline: selectedTime != null
+                                  ? DateTime(
+                                      _selectedDay.year,
+                                      _selectedDay.month,
+                                      _selectedDay.day,
+                                      selectedTime!.hour,
+                                      selectedTime!.minute,
+                                    )
+                                  : null,
+                              completed: false,
+                            ),
+                          );
+
+                    setState(() {
+                      _setTasksForDay(_selectedDay, tasks);
+                    });
+                  }
+
+                  Navigator.of(context).pop();
+                })();
               },
               child: const Text('Add'),
             ),
@@ -1553,7 +1748,9 @@ class _FirstPageState extends State<FirstPage> {
   }
 
   void _toggleTaskCompleted(DateTime day, int taskIndex) {
-    final List<_CalendarTask> tasks = List<_CalendarTask>.from(_getTasksForDay(day));
+    final List<_CalendarTask> tasks = List<_CalendarTask>.from(
+      _getTasksForDay(day),
+    );
     if (taskIndex < 0 || taskIndex >= tasks.length) return;
 
     final task = tasks[taskIndex];
@@ -1562,6 +1759,7 @@ class _FirstPageState extends State<FirstPage> {
 
     // Update task completion status
     tasks[taskIndex] = _CalendarTask(
+      id: task.id,
       title: task.title,
       deadline: task.deadline,
       completed: newCompleted,
@@ -1580,12 +1778,10 @@ class _FirstPageState extends State<FirstPage> {
 
       if (hasDeadline && beforeDeadline) {
         // Completed before deadline: Award XP
-        final change = gamificationStats.awardTaskCompletionXP();
+        gamificationStats.awardTaskCompletionXP();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Task completed on time! +${change.xpDelta} XP${change.levelDelta > 0 ? ', Level +${change.levelDelta}' : ''} 🎉',
-            ),
+            content: Text('Task completed on time! You gained XP🎉'),
             duration: const Duration(seconds: 2),
             backgroundColor: Colors.green,
           ),
@@ -1594,7 +1790,9 @@ class _FirstPageState extends State<FirstPage> {
         // Completed after deadline: No reward, but also no penalty (already missed)
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Task completed, but deadline has passed. No reward.'),
+            content: Text(
+              'Task completed, but deadline has passed. No reward.',
+            ),
             duration: Duration(seconds: 2),
             backgroundColor: Colors.orange,
           ),
@@ -1608,25 +1806,73 @@ class _FirstPageState extends State<FirstPage> {
           ),
         );
       }
+      // Sync completion with backend if task has id
+      if (task.id != null) {
+        (() async {
+          try {
+            final resp = await habitService.completeTask(task.id!);
+            gamificationStats.updateFromServer(resp);
+          } catch (_) {
+            // ignore network errors
+          }
+        })();
+      }
     } else if (!newCompleted && wasCompleted) {
       // Task is being unmarked - no action needed
     }
   }
 
   void _deleteTask(DateTime day, int taskIndex) {
-    final List<_CalendarTask> tasks = List<_CalendarTask>.from(_getTasksForDay(day));
+    final List<_CalendarTask> tasks = List<_CalendarTask>.from(
+      _getTasksForDay(day),
+    );
     if (taskIndex < 0 || taskIndex >= tasks.length) return;
 
-    tasks.removeAt(taskIndex);
-    setState(() {
-      _setTasksForDay(day, tasks);
-    });
+    final _CalendarTask task = tasks[taskIndex];
+    // If this task has a server id, request deletion; otherwise just remove locally
+    if (task.id != null) {
+      (() async {
+        try {
+          await habitService.deleteTask(task.id!);
+          // On success remove locally
+          setState(() {
+            tasks.removeAt(taskIndex);
+            _setTasksForDay(day, tasks);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Task deleted'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } catch (e) {
+          // network or server error - fallback to local removal
+          setState(() {
+            tasks.removeAt(taskIndex);
+            _setTasksForDay(day, tasks);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Task deleted locally (offline)'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      })();
+    } else {
+      tasks.removeAt(taskIndex);
+      setState(() {
+        _setTasksForDay(day, tasks);
+      });
+    }
   }
 
   void _logProgressForSelectedDay() {
     final DateTime normalized = _normalizeDate(_selectedDay);
     final int totalHabits = _habits.length;
-    final int completedHabits = _habits.where((habit) => habit.completed).length;
+    final int completedHabits = _habits
+        .where((habit) => habit.completed)
+        .length;
 
     final entry = _DailyProgressEntry(
       loggedAt: DateTime.now(),
@@ -1647,16 +1893,17 @@ class _FirstPageState extends State<FirstPage> {
       ),
     );
   }
-
 }
 
 // Helper classes for calendar tasks and progress
 class _CalendarTask {
+  final int? id;
   final String title;
   final DateTime? deadline;
   final bool completed;
 
   _CalendarTask({
+    this.id,
     required this.title,
     required this.deadline,
     required this.completed,
@@ -1682,13 +1929,16 @@ class _DailyProgressEntry {
 
 // Helper Habit class to store habit data
 class _Habit {
+  final int? id;
   final String title;
   final String category;
   final int days;
   final bool completed;
-  final bool isPositive; // true for positive habits (green), false for negative habits (red)
+  final bool
+  isPositive; // true for positive habits (green), false for negative habits (red)
 
   _Habit({
+    this.id,
     required this.title,
     required this.category,
     required this.days,

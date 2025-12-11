@@ -10,7 +10,16 @@ import hashlib
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from db import SessionLocal, engine
-from models import Base, Journal, User, HabitAnalysis, HabitInteraction
+from models import (
+    Base,
+    Journal,
+    User,
+    HabitAnalysis,
+    HabitInteraction,
+    UserHabit,
+    UserTasks,
+    UserStats,
+)
 from schema import JournalIn, JournalResponse
 from config_main import emotion_labels, entity_labels, emotion_model, entity_model, bert_tokenizer
 from config_main import  MODELS_DIR, MODEL_FILENAME, FEATURE_COLS_FILENAME, MODEL_DIR_REC    
@@ -27,6 +36,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import sys
 from pathlib import Path
 from Coach.bot import RAGChatbot
+from sqlalchemy import text
 
 chatbot = RAGChatbot() 
 
@@ -45,11 +55,25 @@ app.add_middleware(
 #only creates tables IF they don’t already exist.
 Base.metadata.create_all(bind=engine)
 
+# Ensure DB has newer columns added to models (safe-online migration for simple cases)
+try:
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE userstats ADD COLUMN IF NOT EXISTS minigame_plays_today INTEGER DEFAULT 0"))
+        # ensure new per-level minigame columns exist
+        conn.execute(text("ALTER TABLE userstats ADD COLUMN IF NOT EXISTS minigame_plays_for_level INTEGER DEFAULT 0"))
+        conn.execute(text("ALTER TABLE userstats ADD COLUMN IF NOT EXISTS minigame_level_ref INTEGER"))
+        # ensure userhabit has a deleted flag for soft-deletes
+        conn.execute(text("ALTER TABLE userhabit ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE"))
+except Exception as e:
+    print("Warning: failed to ensure userstats.minigame_plays_today column exists:", e)
+
 # for habit coach
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.abspath(os.path.join(HERE, "."))  # adjust if coach_api sits deeper
+ROOT = os.path.abspath(os.path.join(HERE, "."))  
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
+
+
 
 # user authentication utilities
 # ---------- Password helpers ----------
@@ -75,6 +99,16 @@ def user_to_response(user: User) -> AuthResponse:
         email=user.email,
         signup_date=user.signup_at,
     )
+
+
+# Helper: normalize datetimes to UTC timestamps for safe comparisons
+def _to_utc_timestamp(dt: datetime.datetime) -> float:
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        # treat naive datetimes as UTC for comparison purposes
+        dt = dt.replace(tzinfo=datetime.timezone.utc)
+    return dt.astimezone(datetime.timezone.utc).timestamp()
 
 #Analysis artifacts and utilities
 model = None
@@ -102,8 +136,7 @@ def load_artifacts():
 # ---------- SHAP extraction helper ----------
 def get_shap_vector_for_positive_class(explainer, df_row: pd.DataFrame) -> np.ndarray:
     """
-    Returns a 1-D numpy array of SHAP values aligned to feature_cols for the positive class.
-    Works across SHAP versions / return shapes.
+    Returns a 1-D numpy array of SHAP values aligned to feature_cols for the positive class (class=1).
     """
     try:
         # Try new API first
@@ -133,7 +166,6 @@ def get_shap_vector_for_positive_class(explainer, df_row: pd.DataFrame) -> np.nd
         if raw.shape[0] > 1:
             return raw[1][0]
         return raw[0][0]
-
     raise RuntimeError("Unexpected SHAP output shape: " + str(raw.shape))
 
 # ---------- One-hot builder for payload (handles drop_first=True) ----------
@@ -389,6 +421,24 @@ def recommend_for_user_snapshot_live(user_row: dict, habit_catalog: pd.DataFrame
     return out_df
 
 
+#========================Gamification utilities========================
+# ----- Helper: award XP and handle level-up -----
+def _award_xp_and_handle_level(db, user_id: int, xp_amount: int):
+    stats = db.query(UserStats).filter(UserStats.user_id == user_id).with_for_update().first()
+    if not stats:
+        # create if missing
+        stats = UserStats(user_id=user_id, level=1, xp=0, hp=100, played_health_potion_minigame=False, current_streak=0)
+        db.add(stats)
+        db.flush()
+
+    stats.xp = (stats.xp or 0) + int(xp_amount)
+    # simple level-up rule: 200 xp per level
+    while stats.xp >= stats.level * 200:
+        stats.xp -= stats.level * 200
+        stats.level += 1
+    db.add(stats)
+    return stats
+
 
 
 #================ Background processing pipeline =================
@@ -438,7 +488,7 @@ def process_journal_pipeline(user_id: int, journal_id: int, payload: JournalIn, 
         user_snapshot = {
                 "risk_score": analysis_result["risk_score"],
                 "prediction": analysis_result["prediction_label"],
-                "dominant_emotion": features["dominant_emotion"],
+                "dominant_emotion": features["dominant_emotion"].lower(),
                 "emotion_score": features["emotion_score"],
                 "screen_time": features["screen_time_mins"],
                 "unlocks": features["unlock_counts"],
@@ -494,6 +544,10 @@ def signup(payload: SignupPayload):
         db.add(user)
         db.commit()
         db.refresh(user)
+        # create initial gamification/stats row for user
+        stats = UserStats(user_id=user.user_id, level=1, xp=0, hp=100, played_health_potion_minigame=False, current_streak=0)
+        db.add(stats)
+        db.commit()
         return user_to_response(user)
     finally:
         db.close()
@@ -506,17 +560,339 @@ def login(payload: LoginPayload):
         user = db.query(User).filter(User.email == payload.email).first()
         if not user or not verify_password(payload.password, user.password_hash):
             raise HTTPException(status_code=401, detail="Invalid credentials")
+        # set last_login for per-login rules
+        user.last_login = datetime.datetime.utcnow()
+        db.add(user)
+        # reset per-login play flag so user can play minigame once per login
+        stats = db.query(UserStats).filter(UserStats.user_id == user.user_id).first()
+        if stats:
+            # reset play flag
+            stats.played_health_potion_minigame = False
+            # award a small login health bonus (+10 HP) — only on explicit login
+            try:
+                old_hp = stats.hp or 0
+                stats.hp = min(100, old_hp + 10)
+            except Exception:
+                stats.hp = stats.hp or 0
+            db.add(stats)
+        db.commit()
         return user_to_response(user)
     finally:
         db.close()
 
 
+# ------ Habit endpoints ------
+@app.post("/user/habits")
+def create_user_habit(payload: dict):
+    user_id = payload.get("user_id")
+    habit_name = payload.get("habit_name")
+    category = payload.get("category")
+    number_of_days = payload.get("number_of_days", 0)
+    habit_type = payload.get("habit_type", "positive")
+    if not user_id or not habit_name:
+        raise HTTPException(status_code=400, detail="user_id and habit_name required")
+    db = SessionLocal()
+    try:
+        h = UserHabit(user_id=user_id, habit_name=habit_name, category=category, number_of_days=number_of_days, habit_type=habit_type)
+        db.add(h)
+        db.commit()
+        db.refresh(h)
+        return {"status": "ok", "habit_id": h.id}
+    finally:
+        db.close()
+
+
+@app.get("/user/{user_id}/habits")
+def list_user_habits(user_id: int):
+    db = SessionLocal()
+    try:
+        # Exclude soft-deleted habits
+        rows = db.query(UserHabit).filter(UserHabit.user_id == user_id, UserHabit.deleted == False).all()
+        out = []
+        for r in rows:
+            out.append({
+                "id": r.id,
+                "habit_name": r.habit_name,
+                "category": r.category,
+                "number_of_days": r.number_of_days,
+                "habit_type": r.habit_type,
+                "is_checked": bool(r.is_checked),
+            })
+        return {"habits": out}
+    finally:
+        db.close()
+
+
+@app.delete("/user/habits/{habit_id}")
+def delete_user_habit(habit_id: int):
+    """Soft-delete a user habit so it does not reappear after reload/login."""
+    db = SessionLocal()
+    try:
+        h = db.query(UserHabit).filter(UserHabit.id == habit_id).first()
+        if not h:
+            raise HTTPException(status_code=404, detail="Habit not found")
+        # mark deleted so it remains hidden for this user
+        h.deleted = True
+        db.add(h)
+        db.commit()
+        return {"status": "ok", "habit_id": habit_id}
+    finally:
+        db.close()
+
+
+@app.post("/user/habits/{habit_id}/check")
+def check_user_habit(habit_id: int, payload: dict):
+    checked = payload.get("checked", True)
+    db = SessionLocal()
+    try:
+        h = db.query(UserHabit).filter(UserHabit.id == habit_id).first()
+        if not h:
+            raise HTTPException(status_code=404, detail="Habit not found")
+        # Only apply changes on a state transition (unchecked -> checked or checked -> unchecked)
+        prev_checked = bool(h.is_checked)
+        xp_award = 0
+        hp_delta = 0
+        stats = None
+
+        if checked and not prev_checked:
+            # Transition: now checked
+            if h.habit_type == "positive":
+                xp_award = 25
+                stats = _award_xp_and_handle_level(db, h.user_id, xp_award)
+            else:
+                stats = db.query(UserStats).filter(UserStats.user_id == h.user_id).first()
+                if stats:
+                    old_hp = stats.hp or 0
+                    stats.hp = max(0, old_hp - 10)
+                    hp_delta = (stats.hp - old_hp)
+                    db.add(stats)
+        else:
+            if not checked and prev_checked:
+                # Transition: now unchecked -> reverse previous effect
+                if h.habit_type == "positive":
+                    # remove previously awarded XP
+                    stats = db.query(UserStats).filter(UserStats.user_id == h.user_id).first()
+                    if stats:
+                        old_xp = stats.xp or 0
+                        stats.xp = max(0, old_xp - 25)
+                        db.add(stats)
+                        xp_award = -25
+                else:
+                    stats = db.query(UserStats).filter(UserStats.user_id == h.user_id).first()
+                    if stats:
+                        old_hp = stats.hp or 0
+                        stats.hp = min(100, old_hp + 10)
+                        hp_delta = (stats.hp - old_hp)
+                        db.add(stats)
+
+        # persist new checked state
+        h.is_checked = bool(checked)
+        db.add(h)
+        db.commit()
+
+        if stats is None:
+            stats = db.query(UserStats).filter(UserStats.user_id == h.user_id).first()
+        resp = {"status": "ok", "xp_awarded": xp_award, "hp_delta": hp_delta}
+        if stats:
+            resp.update({"level": stats.level, "xp": stats.xp, "hp": stats.hp, "streaks": stats.current_streak})
+        return resp
+    finally:
+        db.close()
+
+@app.delete("/user/tasks/{task_id}")
+def delete_user_task(task_id: int):
+        db = SessionLocal()
+        try:
+            t = db.query(UserTasks).filter(UserTasks.id == task_id).first()
+            if not t:
+                raise HTTPException(status_code=404, detail="Task not found")
+            db.delete(t)
+            db.commit()
+            return {"status": "ok", "task_id": task_id}
+        finally:
+            db.close()
+
+
+# ------ Task endpoints ------
+@app.post("/user/tasks")
+def create_user_task(payload: dict):
+    user_id = payload.get("user_id")
+    title = payload.get("title")
+    deadline = payload.get("deadline")  # expect ISO string
+    if not user_id or not title:
+        raise HTTPException(status_code=400, detail="user_id and title required")
+    db = SessionLocal()
+    try:
+        dt = None
+        if deadline:
+            try:
+                dt = datetime.datetime.fromisoformat(deadline)
+            except Exception:
+                raise HTTPException(status_code=400, detail="Invalid deadline format; use ISO format")
+        t = UserTasks(user_id=user_id, title=title, deadline=dt)
+        db.add(t)
+        db.commit()
+        db.refresh(t)
+        return {"status": "ok", "task_id": t.id}
+    finally:
+        db.close()
+
+
+@app.get("/user/{user_id}/tasks")
+def list_user_tasks(user_id: int):
+    db = SessionLocal()
+    try:
+        rows = db.query(UserTasks).filter(UserTasks.user_id == user_id).all()
+        out = []
+        for r in rows:
+            out.append({
+                "id": r.id,
+                "title": r.title,
+                "deadline": r.deadline.isoformat() if r.deadline else None,
+                "completed": bool(r.completed),
+            })
+        return {"tasks": out}
+    finally:
+        db.close()
+
+
+@app.post("/user/tasks/{task_id}/complete")
+def complete_user_task(task_id: int):
+    db = SessionLocal()
+    try:
+        t = db.query(UserTasks).filter(UserTasks.id == task_id).first()
+        if not t:
+            raise HTTPException(status_code=404, detail="Task not found")
+        now_ts = datetime.datetime.now(datetime.timezone.utc).timestamp()
+        xp_award = 0
+        hp_delta = 0
+        stats = None
+
+        if t.deadline:
+            try:
+                dl_ts = _to_utc_timestamp(t.deadline)
+            except Exception:
+                dl_ts = None
+        else:
+            dl_ts = None
+
+        # if deadline exists and now > deadline => missed -> reduce hp
+        if dl_ts is not None and now_ts > dl_ts:
+            stats = db.query(UserStats).filter(UserStats.user_id == t.user_id).first()
+            if stats:
+                old_hp = stats.hp or 0
+                stats.hp = max(0, old_hp - 10)
+                hp_delta = (stats.hp - old_hp)
+                db.add(stats)
+        else:
+            # award xp for completing before deadline — match frontend task XP
+            xp_award = 20
+            stats = _award_xp_and_handle_level(db, t.user_id, xp_award)
+
+        t.completed = True
+        db.add(t)
+        db.commit()
+
+        if stats is None:
+            stats = db.query(UserStats).filter(UserStats.user_id == t.user_id).first()
+        resp = {"status": "ok", "xp_awarded": xp_award, "hp_delta": hp_delta}
+        if stats:
+            resp.update({"level": stats.level, "xp": stats.xp, "hp": stats.hp, "streaks": stats.current_streak})
+        return resp
+    finally:
+        db.close()
+
+
+# ------ Gamification endpoints ------
+@app.get("/user/{user_id}/stats")
+def get_user_stats(user_id: int):
+    db = SessionLocal()
+    try:
+        stats = db.query(UserStats).filter(UserStats.user_id == user_id).first()
+        if not stats:
+            # create default
+            stats = UserStats(user_id=user_id, level=1, xp=0, hp=100, played_health_potion_minigame=False, current_streak=0)
+            db.add(stats)
+            db.commit()
+            db.refresh(stats)
+        return {
+            "level": stats.level, 
+            "xp": stats.xp,
+            "hp": stats.hp,
+            "played_health_potion_minigame": bool(stats.played_health_potion_minigame),
+            # per-level minigame counters so frontend can disable the game when limit reached
+            "minigame_plays_for_level": int(stats.minigame_plays_for_level or 0),
+            "minigame_level_ref": int(stats.minigame_level_ref) if stats.minigame_level_ref is not None else None,
+            # keep response key 'streaks' for backwards compatibility
+            "streaks": stats.current_streak,
+        }
+    finally:
+        db.close()
+
+
+@app.post("/user/{user_id}/minigame/play_health_potion")
+def play_health_potion(user_id: int, payload: dict):
+    """Record a mini-game play. Payload includes {'won': bool}.
+    Awards +10 HP for a win, up to 3 plays per calendar day. Returns updated stats and play count.
+    """
+    won = bool(payload.get("won", False))
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.user_id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        stats = db.query(UserStats).filter(UserStats.user_id == user_id).with_for_update().first()
+        if not stats:
+            stats = UserStats(user_id=user_id, level=1, xp=0, hp=100, played_health_potion_minigame=False, current_streak=0, minigame_plays_today=0)
+            db.add(stats)
+            db.flush()
+
+        # Per-level play limit: if user's recorded level ref differs from current level, reset counter
+        current_level = stats.level or 1
+        if stats.minigame_level_ref != current_level:
+            stats.minigame_plays_for_level = 0
+            stats.minigame_level_ref = current_level
+
+        MAX_PLAYS_PER_LEVEL = 3
+        if (stats.minigame_plays_for_level or 0) >= MAX_PLAYS_PER_LEVEL:
+            raise HTTPException(status_code=400, detail="Mini-game play limit reached for current level")
+
+        # increment per-level play count
+        stats.minigame_plays_for_level = (stats.minigame_plays_for_level or 0) + 1
+        # update last play timestamp
+        stats.last_minigame_play_at = datetime.datetime.utcnow()
+
+        hp_delta = 0
+        xp_delta = 0
+        if won:
+            old_hp = stats.hp or 0
+            stats.hp = min(100, old_hp + 10)
+            hp_delta = stats.hp - old_hp
+
+        db.add(stats)
+        db.commit()
+
+        return {
+            "status": "ok",
+            "won": won,
+            "hp_delta": hp_delta,
+            "minigame_plays_for_level": stats.minigame_plays_for_level,
+            "minigame_level_ref": stats.minigame_level_ref,
+            "level": stats.level,
+            "xp": stats.xp,
+            "hp": stats.hp,
+            "streaks": stats.current_streak,
+        }
+    finally:
+        db.close()
+
+
+# ------ Journal analysis endpoint ------
 @app.post("/journal-analyse", response_model=JournalResponse)
 def analyse_journal(payload: JournalIn, background_tasks: BackgroundTasks):
     text = payload.text
-
     # run you NLP prediction logic (your snippet)
-    inputs = bert_tokenizer(text, return_tensors="pt")
+    inputs = bert_tokenizer(text, return_tensors="pt") 
     with torch.no_grad():
         bert_outputs = emotion_model(**inputs)
         ner_outputs = entity_model.predict_entities(text, entity_labels)
@@ -533,7 +909,6 @@ def analyse_journal(payload: JournalIn, background_tasks: BackgroundTasks):
         user = db.query(User).filter(User.user_id == payload.user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
-
         j = Journal(
             user_id=payload.user_id,
             text=payload.text,
@@ -570,6 +945,7 @@ async def ping():
     return {"status": "ok", "detail": "coach API up"}
 
 
+#------ Coach chat endpoints ------
 @app.post("/coach/chat", response_model=ChatResponse)
 async def coach_chat(req: ChatRequest):
     try:

@@ -53,10 +53,10 @@ def main():
     Evaluation.evaluate_models()
 
     # # # Step 4: Model Explanation (Guidelines 6, 8, 9)
-    print("\n==========================================")
-    print("STEP 4: EXPLAINING MODEL (SHAP)...")
-    print("==========================================")
-    SHAP.explain_model()
+    # print("\n==========================================")
+    # print("STEP 4: EXPLAINING MODEL (SHAP)...")
+    # print("==========================================")
+    # SHAP.explain_model()
 
     print("\n==========================================")
     print("--- WORKFLOW COMPLETE ---")

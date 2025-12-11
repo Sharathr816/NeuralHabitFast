@@ -24,10 +24,10 @@ class GamificationStats extends ChangeNotifier {
   int _currentLevel = 5;
   int _currentHP = 85; // Health points out of 100
   int _currentStreak = 0;
-  int _totalHabitsCompleted = 42;
-  int _positiveHabitsCompleted = 38;
+  int _totalHabitsCompleted = 0;
+  int _positiveHabitsCompleted = 0;
   int _negativeHabitsLogged = 4;
-  
+
   // Track last login date for streak calculation
   String? _lastLoginDate;
 
@@ -38,9 +38,13 @@ class GamificationStats extends ChangeNotifier {
 
   // Track dates that have received daily bonus (normalized to year-month-day)
   final Set<String> _dailyBonusDates = {};
-  
+
   // Track daily game plays: date string -> play count
   final Map<String, int> _dailyGamePlays = {};
+  // Per-level tracking received from server
+  int _minigamePlaysForLevel = 0;
+  int? _minigameLevelRef;
+  static const int _maxPlaysPerLevel = 3;
 
   int get currentXP => _currentXP;
   int get currentLevel => _currentLevel;
@@ -58,7 +62,7 @@ class GamificationStats extends ChangeNotifier {
 
   void _normalizeLevel() {
     final int previousLevel = _currentLevel;
-    
+
     while (_currentXP >= xpForNextLevel) {
       _currentLevel += 1;
     }
@@ -66,7 +70,7 @@ class GamificationStats extends ChangeNotifier {
     while (_currentLevel > 1 && _currentXP < xpForCurrentLevel) {
       _currentLevel -= 1;
     }
-    
+
     // If level increased, restore HP to 100
     if (_currentLevel > previousLevel) {
       _currentHP = 100;
@@ -247,7 +251,11 @@ class GamificationStats extends ChangeNotifier {
   // Parse date string back to DateTime (YYYY-MM-DD format)
   DateTime _parseDateString(String dateString) {
     final parts = dateString.split('-');
-    return DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+    return DateTime(
+      int.parse(parts[0]),
+      int.parse(parts[1]),
+      int.parse(parts[2]),
+    );
   }
 
   // Get the date string for today (for external checks)
@@ -267,6 +275,20 @@ class GamificationStats extends ChangeNotifier {
     return playsToday < _maxDailyGamePlays;
   }
 
+  // New: check if mini-game can be played for current level based on server state
+  bool canPlayMiniGameForLevel() {
+    return (_minigamePlaysForLevel < _maxPlaysPerLevel);
+  }
+
+  // Expose read-only getters for minigame counters
+  int get minigamePlaysForLevel => _minigamePlaysForLevel;
+  int? get minigameLevelRef => _minigameLevelRef;
+
+  int getRemainingPlaysForLevel() {
+    final int rem = _maxPlaysPerLevel - _minigamePlaysForLevel;
+    return rem < 0 ? 0 : rem;
+  }
+
   // Get remaining plays for today
   int getRemainingGamePlaysToday() {
     final String todayKey = getTodayKey();
@@ -279,6 +301,13 @@ class GamificationStats extends ChangeNotifier {
     final String todayKey = getTodayKey();
     final int currentPlays = _dailyGamePlays[todayKey] ?? 0;
     _dailyGamePlays[todayKey] = currentPlays + 1;
+    notifyListeners();
+  }
+
+  // Replace server-driven per-level counters
+  void updateMinigameFromServer({int? playsForLevel, int? levelRef}) {
+    if (playsForLevel != null) _minigamePlaysForLevel = playsForLevel;
+    if (levelRef != null) _minigameLevelRef = levelRef;
     notifyListeners();
   }
 
@@ -308,6 +337,54 @@ class GamificationStats extends ChangeNotifier {
 
     notifyListeners();
     return GamificationChange(hpDelta: hpDelta);
+  }
+
+  // Replace local stats with server-provided values (robust keys)
+  void updateFromServer(Map<String, dynamic> data) {
+    try {
+      if (data.containsKey('xp')) _currentXP = (data['xp'] as num).toInt();
+      if (data.containsKey('level'))
+        _currentLevel = (data['level'] as num).toInt();
+      if (data.containsKey('hp')) _currentHP = (data['hp'] as num).toInt();
+      if (data.containsKey('streaks')) {
+        final val = data['streaks'];
+        if (val is Map && val.containsKey('current')) {
+          _currentStreak = (val['current'] as num).toInt();
+        } else if (val is num) {
+          _currentStreak = val.toInt();
+        }
+      } else if (data.containsKey('streak') ||
+          data.containsKey('current_streak')) {
+        final v = data['streak'] ?? data['current_streak'];
+        if (v is num) _currentStreak = v.toInt();
+      }
+
+      if (data.containsKey('total_habits_completed')) {
+        _totalHabitsCompleted = (data['total_habits_completed'] as num).toInt();
+      }
+      if (data.containsKey('positive_habits_completed')) {
+        _positiveHabitsCompleted = (data['positive_habits_completed'] as num)
+            .toInt();
+      }
+      if (data.containsKey('negative_habits_logged')) {
+        _negativeHabitsLogged = (data['negative_habits_logged'] as num).toInt();
+      }
+
+      // optional per-level minigame fields
+      if (data.containsKey('minigame_plays_for_level')) {
+        try {
+          _minigamePlaysForLevel = (data['minigame_plays_for_level'] as num)
+              .toInt();
+        } catch (_) {}
+      }
+      if (data.containsKey('minigame_level_ref')) {
+        try {
+          _minigameLevelRef = (data['minigame_level_ref'] as num).toInt();
+        } catch (_) {}
+      }
+
+      notifyListeners();
+    } catch (_) {}
   }
 }
 
