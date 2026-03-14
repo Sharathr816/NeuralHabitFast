@@ -30,7 +30,7 @@ NeuralHabit is a comprehensive habit coaching application that combines:
 │  ┌───────────────────────────────────┐  │
 │  │  Habit Coach Service              │  │
 │  │  - Vector search (ChromaDB)       │  │
-│  │  - LLM coaching (OpenAI/fallback) │  │
+│  │  - LLM coaching                   │  │
 │  │  - Recommendation integration     │  │
 │  └───────────────────────────────────┘  │
 │  ┌───────────────────────────────────┐  │
@@ -88,21 +88,21 @@ NeuralHabit is a comprehensive habit coaching application that combines:
   - `top_features` (JSONB)
   - `raw_shap` (JSONB)
 
+### 4. Recommendation
+  - recommend engine takes analysis entry and use it to provide recommendation of micro habits(top5)
+  - store recommendations in DB (habit id which is present in habit catalog)
+
 ### 4. Habit Coaching Request
 - User navigates to "Habit Coach" page
 - Frontend calls `/coach/get-coaching?user_id=X`
 - Backend:
-  1. Retrieves latest analysis for user
-  2. Gets relevant journal snippets via vector search
-  3. Gets recommended habits from catalog using DeepFM
-  4. Constructs prompt with:
-     - Top 3 features with impact
-     - Dominant emotion + score
-     - 3-6 journal snippets
-     - Candidate habit titles
-  5. Generates coaching via LLM (or fallback)
-  6. Saves coaching session to `coach_sessions`
-  7. Saves recommendations to `recommended_habits`
+  1. Retrieves latest analysis and recommendation for user and his journal data with emotion
+  2. Gets recommended habits from catalog as habit id is mentioned in DB entry in step1
+  3. Constructs prompt with:
+     - users current analysis and recommend DB entries
+     - user query
+  4. Generates coaching via LLM
+  5. Saves coaching session to `coach_sessions`
 
 ### 5. User Views Coaching
 - Frontend displays:
@@ -242,49 +242,5 @@ const String backendBaseUrl = 'http://10.0.2.2:8000';  // Android emulator
 // or 'http://YOUR_IP:8000' for physical device
 ```
 
-## Network Configuration
-
-- **Android Emulator**: `http://10.0.2.2:8000` (default)
-- **Physical Device**: `http://YOUR_PC_IP:8000`
-- **iOS Simulator**: `http://localhost:8000`
-- **Physical iOS**: `http://YOUR_PC_IP:8000`
-
-## Troubleshooting
-
-### Backend won't start
-- Check PostgreSQL is running
-- Verify `DATABASE_URL` in `.env`
-- Ensure all Python dependencies installed
-
-### Frontend can't connect
-- Verify backend is running: `curl http://localhost:8000/`
-- Check backend URL in `config.dart`
-- For physical device: Use PC's IP, not `localhost`
-- Check firewall allows port 8000
-
-### "Failed to featurize" errors
-- Ensure recommendation model is trained
-- Check `habit_catalog.json` exists
-- Verify model files in `RecommendationEngine/models/`
-
-### "No analysis found"
-- Submit a journal entry first
-- Ensure journal has mobile data (screen_time, etc.)
-- Check `habit_analysis` table has entries
-
-## Development Notes
-
-- **Recommendation Engine**: Isolated in `backend/RecommendationEngine/`, not directly connected to frontend
-- **Analysis Engine**: Only touched for frontend connection, models/logic unchanged
-- **Vector Store**: ChromaDB for RAG-based journal retrieval
-- **LLM Fallback**: Deterministic responses when OpenAI API key not available
-
-## Next Steps
-
-1. Add mobile data collection in Flutter (screen time, steps APIs)
-2. Implement habit tracking and completion
-3. Add user feedback on recommendations
-4. Enhance LLM prompts based on user feedback
-5. Add analytics and reporting
 
 

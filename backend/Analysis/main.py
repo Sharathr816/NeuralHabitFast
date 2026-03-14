@@ -47,10 +47,10 @@ def main():
     Train_XG.train_models()
 
     # Step 3: Model Evaluation (Guidelines 5, 7)
-    print("\n==========================================")
-    print("STEP 3: EVALUATING MODELS...")
-    print("==========================================")
-    Evaluation.evaluate_models()
+    # print("\n==========================================")
+    # print("STEP 3: EVALUATING MODELS...")
+    # print("==========================================")
+    # Evaluation.evaluate_models()
 
     # # # Step 4: Model Explanation (Guidelines 6, 8, 9)
     # print("\n==========================================")

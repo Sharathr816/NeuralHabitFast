@@ -17,7 +17,7 @@ import sys
 
 
 # 1. Get the absolute path of the current file (config.py)
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = os.path.dirname(os.path.abspath(__file__)) #path to Coach/ directory
 
 # 2. Go up 2 levels: src -> Coach -> backend (where db.py lives)
 backend_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
@@ -28,7 +28,7 @@ if backend_dir not in sys.path:
 
 # 4. Now you can import directly
 try:
-    from db import engine
+    from database.db import engine
     print("✅ Successfully imported engine from db.py")
 except ImportError as e:
     print(f"❌ Error importing engine: {e}")

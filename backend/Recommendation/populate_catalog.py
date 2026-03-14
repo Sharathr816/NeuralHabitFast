@@ -8,8 +8,8 @@ from sqlalchemy.orm import sessionmaker
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from db import engine, DATABASE_URL
-from models import Base, HabitCatalog
+from database.db import engine, DATABASE_URL
+from database.models import Base, HabitCatalog
 from dotenv import load_dotenv
 
 load_dotenv()

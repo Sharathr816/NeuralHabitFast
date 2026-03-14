@@ -4,9 +4,9 @@ FEATURE_COLS_FILENAME = "feature_cols.joblib"
 MODEL_DIR_REC = "Recommendation/deepfm_model"  # folder containing deepfm_model and deepfm_preproc.joblib
 
 
-
 from gliner import GLiNER
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+import datetime
 
 
 emotion_labels = [
@@ -24,3 +24,11 @@ bert_tokenizer = AutoTokenizer.from_pretrained(model_name)
 emotion_model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
 entity_model = GLiNER.from_pretrained("urchade/gliner_small-v2.1")
+
+def _to_utc_timestamp(dt: datetime.datetime) -> float:
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        # treat naive datetimes as UTC for comparison purposes
+        dt = dt.replace(tzinfo=datetime.timezone.utc)
+    return dt.astimezone(datetime.timezone.utc).timestamp()
