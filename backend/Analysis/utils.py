@@ -15,10 +15,10 @@ EMOTION_LABELS = [
 
 # Negative and Positive valence lists for modeling
 NEL = [
-    "Sadness", "Grief", "Anger", "Fear", "Nervousness", "Remorse", "Disappointment", "Disgust", "Annoyance"
+    "Sadness", "Grief", "Anger", "Fear", "Nervousness", "Remorse", "Disappointment", "Disgust", "Annoyance", "Confusion"
 ]
 PEL = [
-    "Joy", "Excitement", "Gratitude", "Optimism", "Admiration", "Relief", "Pride", "Love"
+    "Joy", "Excitement", "Gratitude", "Optimism", "Admiration", "Relief", "Pride", "Love", "Amusement", "Approval", "Caring", "Curiosity", "Realization", "Surprise"
 ]
 Neutral_Emotions = set(EMOTION_LABELS) - set(NEL) - set(PEL)
 

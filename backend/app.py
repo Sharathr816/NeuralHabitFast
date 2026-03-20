@@ -11,6 +11,7 @@ from database.db import engine
 from database.models import Base
 
 from config_main import MODELS_DIR, MODEL_FILENAME, FEATURE_COLS_FILENAME
+from services.sbii_service import load_sbii_model
 
 from sqlalchemy import text
 
@@ -44,25 +45,26 @@ app.add_middleware(
 #only creates tables IF they don’t already exist.
 Base.metadata.create_all(bind=engine)
 
-# Ensure DB has newer columns added to models (safe-online migration for simple cases)
-try:
-    with engine.begin() as conn:
-        conn.execute(text("ALTER TABLE userstats ADD COLUMN IF NOT EXISTS minigame_plays_today INTEGER DEFAULT 0"))
-        # ensure new per-level minigame columns exist
-        conn.execute(text("ALTER TABLE userstats ADD COLUMN IF NOT EXISTS minigame_plays_for_level INTEGER DEFAULT 0"))
-        conn.execute(text("ALTER TABLE userstats ADD COLUMN IF NOT EXISTS minigame_level_ref INTEGER"))
-        # ensure userhabit has a deleted flag for soft-deletes
-        conn.execute(text("ALTER TABLE userhabit ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE"))
-except Exception as e:
-    print("Warning: failed to ensure userstats.minigame_plays_today column exists:", e)
+# # Ensure DB has newer columns added to models (safe-online migration for simple cases)
+# try:
+#     with engine.begin() as conn:
+#         conn.execute(text("ALTER TABLE userstats ADD COLUMN IF NOT EXISTS minigame_plays_today INTEGER DEFAULT 0"))
+#         # ensure new per-level minigame columns exist
+#         conn.execute(text("ALTER TABLE userstats ADD COLUMN IF NOT EXISTS minigame_plays_for_level INTEGER DEFAULT 0"))
+#         conn.execute(text("ALTER TABLE userstats ADD COLUMN IF NOT EXISTS minigame_level_ref INTEGER"))
+#         # ensure userhabit has a deleted flag for soft-deletes
+#         conn.execute(text("ALTER TABLE userhabit ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE"))
+# except Exception as e:
+#     print("Warning: failed to ensure userstats.minigame_plays_today column exists:", e)
 
 
 # called after all imports(includes routers as well) are done
 @app.on_event("startup")
 def load_artifacts():
-    import dependencies  # ensure we import the module where these globals are defined
+    import  dependencies  # ensure we import the module where these globals are defined
     analysis_model_path = os.path.join(MODELS_DIR, MODEL_FILENAME)
     cols_path = os.path.join(MODELS_DIR, FEATURE_COLS_FILENAME)
+    print(f"Loading model from {analysis_model_path} and feature columns from {cols_path}...")
 
     if not os.path.exists(analysis_model_path) or not os.path.exists(cols_path):
         raise RuntimeError(f"Model or feature_cols not found in {MODELS_DIR}/. Expect files: {MODEL_FILENAME}, {FEATURE_COLS_FILENAME}")
@@ -72,6 +74,7 @@ def load_artifacts():
     # build SHAP explainer once (fast-ish for trees)
     dependencies.explainer = shap.TreeExplainer(dependencies.model)
     print(f"Loaded model and feature_cols ({len(dependencies.feature_cols)} cols). SHAP explainer ready.")
+    load_sbii_model()  # load SBII model at startup as well
 
 
 # ========== User authentication utilities ==========

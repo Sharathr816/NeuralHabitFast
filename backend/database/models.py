@@ -55,6 +55,7 @@ class HabitAnalysis(Base):
     risk_score = Column(Numeric(4, 3), nullable=True)
     prediction_label = Column(Text, nullable=True)
     top_features = Column(JSONB, nullable=True)  # PostgreSQL JSONB
+    sbii_score = Column(Numeric(4, 3), nullable=True)
     # raw_shap = Column(JSONB, nullable=True)  # PostgreSQL JSONB
     
 

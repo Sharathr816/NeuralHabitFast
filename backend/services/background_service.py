@@ -6,7 +6,7 @@ import pandas as pd
 from database.schema import JournalIn
 from services.analysis_service import build_feature_row_from_payload, analyse_row
 from services.recommendation_service import recommend_for_user_snapshot_live
-
+from services.sbii_service import predict_sbii
 
 def process_journal_pipeline(user_id: int, journal_id: int, payload: JournalIn, ner_outputs, top5_labels, top5_probs):
     """Runs in background: build feature row, run analysis, save HabitAnalysis,
@@ -29,7 +29,9 @@ def process_journal_pipeline(user_id: int, journal_id: int, payload: JournalIn, 
             "weekend_flag": 1 if datetime.datetime.today().weekday() >=5 else 0
         }
         df_row = build_feature_row_from_payload(features)
+        print("Feature row built for the model")
         analysis_result = analyse_row(df_row, features)  # returns risk_score, label, top_features
+        print("Analysis done by the model")
 
         # 2) Save HabitAnalysis
         ha = HabitAnalysis(
@@ -37,7 +39,8 @@ def process_journal_pipeline(user_id: int, journal_id: int, payload: JournalIn, 
             journal_id=journal_id,
             risk_score=analysis_result["risk_score"],
             prediction_label=str(analysis_result["prediction_label"]),
-            top_features=analysis_result["top_features"]
+            top_features=analysis_result["top_features"],
+            
         )
         db.add(ha)
         db.commit()
@@ -49,6 +52,18 @@ def process_journal_pipeline(user_id: int, journal_id: int, payload: JournalIn, 
             j.analysis_done = True   # add this boolean column to Journal model
             db.add(j)
             db.commit()
+
+        # Get SBII score
+        try:
+            sbii_score = predict_sbii(user_id)
+            print("forecasting completed by the model successfully)")
+        except Exception as e:
+            print("SBII error:", e)
+            sbii_score = None
+        
+        ha.sbii_score = sbii_score
+        db.add(ha)
+        db.commit()
 
         # 3) Create user_snapshot dict — build from features + emotions + analysis
         user_snapshot = {
